@@ -1,9 +1,11 @@
 'use client'
-import Cadastro from "./pages/loginCadastro/Cadastro"
+import Apresentação from "./components/CadastroComponents/Apresentação";
+
+Apresentação
 export default function Home() {
   return(
     <div>
-        <Cadastro />
+        <Apresentação />
     </div>
   );
 }

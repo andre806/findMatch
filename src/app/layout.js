@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
     <html lang="pt-BR">
       <head>
         <meta charSet="UTF-8" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/logo.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link 
           rel="preconnect" 
@@ -30,8 +30,8 @@ export default function RootLayout({ children }) {
           <header className="app-header">
             <nav className="navbar">
               <div className="nav-brand">
-                <span className="logo-icon">🦇</span>
-                <span className="logo-text">GothicMatch</span>
+                <span className="logo-icon"></span>
+                <span className="logo-text"></span>
               </div>
             </nav>
           </header>
@@ -41,7 +41,7 @@ export default function RootLayout({ children }) {
           </main>
           
           <footer className="app-footer">
-            <p>&copy; 2025 GothicMatch. Conectando almas góticas.</p>
+            <p>&copy; 2025 GothicMatch. Conectando almas .</p>
           </footer>
         </div>
       </body>
