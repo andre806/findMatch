@@ -1,7 +1,79 @@
 import { Container, Typography, Box, Paper, Button, Link } from '@mui/material';
+import { signIn, useSession } from "next-auth/react";
+import { useEffect, useState } from 'react';
 
-export default function Apresentação() {
+function getTokenFromCookies() {
+    if (typeof document === "undefined") return null;
+    const match = document.cookie.match(/(?:^|; )token=([^;]*)/);
+    return match ? match[1] : null;
+}
+
+function Apresentacao() {
+    const { data: session } = useSession();
+    const url = process.env.NEXT_PUBLIC_URL;
+    const [logado, setLogado] = useState(null)
+    const [user, setUser] = useState({
+        nome: "",
+        email: "",
+    });
+
+    useEffect(() => {
+        if (session && session.user) {
+            setUser({
+                nome: session.user.name,
+                email: session.user.email
+            });
+
+
+            const fetchLogado = async () => {
+                const db = await fetch(`${url}User/VerificaLogado?email=${session.user.email}`, {
+                    method: "GET",
+                    headers: { "content-type": "application/json" }
+                })
+                const res = await db.json();
+                setLogado(res)
+            }
+            fetchLogado();
+        }
+    }, [session]);
+    const cadastrar = async () => {
+        await fetch(`${url}User/createUser`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(user)
+        })
+        // Removido router.push("/pages/Passo2");
+    }
+    const login = async () => {
+        await fetch(`${url}User/login?email=${user.email}`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            credentials: "include"
+        })
+        // Removido router.push("/pages/Private/perfil");
+    }
+    const [loginRealizado, setLoginRealizado] = useState(false);
+
+    useEffect(() => {
+        if (!session || loginRealizado) return;
+
+        if (logado === false) {
+            cadastrar().then(() => setLoginRealizado(true));
+        } else if (logado === true) {
+            login().then(() => setLoginRealizado(true));
+        }
+    }, [logado, session, loginRealizado]);
+
+    const handleGoogleSignIn = () => {
+        const token = getTokenFromCookies();
+        if (!token) {
+            signIn("google", { callbackUrl: "http://localhost:3000" });
+        }
+        // Se já tem token, não faz nada (ou pode redirecionar)
+    };
+
     return (
+
         <Box
             sx={{
                 minHeight: '100vh',
@@ -20,13 +92,22 @@ export default function Apresentação() {
                     sx={{
                         p: 4,
                         borderRadius: 2,
-                        backgroundColor: 'transparent', // Removido fundo preto
+                        backgroundColor: 'rgba(20, 20, 30, 0.85)', // Fundo mais escuro e translúcido
                         color: '#fafafa',
                         boxShadow: '0 8px 32px 0 rgba(31,38,135,0.37)',
-                        backdropFilter: 'none', // Removido blur
+                        backdropFilter: 'none',
                     }}
                 >
                     <Box textAlign="center">
+                        <img
+                            src="/logo.png"
+                            alt="Logo FindMatch"
+                            style={{
+                                width: 140, // aumentado de 90 para 140
+                                marginBottom: 24,
+                                filter: 'drop-shadow(0 2px 8px #0008)'
+                            }}
+                        />
                         <Typography
                             variant="h4"
                             component="h1"
@@ -64,56 +145,24 @@ export default function Apresentação() {
                             Aqui, o que importa é quem você é de verdade, não apenas a sua aparência. Diferente de outros apps, onde as primeiras impressões vêm das fotos, no FindMatch você se apresenta pelo seu perfil, sua personalidade, seus valores e interesses. Assim, você é escolhido pelo que realmente importa.
                         </Typography>
 
-                        {/* <Typography
-                            variant="body1"
-                            paragraph
-                            sx={{
-                                mb: 3,
-                                lineHeight: 1.8,
-                                color: '#bdbdbd',
-                                animation: 'fadeIn 1.5s',
-                            }}
-                        >
-                            No FindMatch, você é conectado principalmente a pessoas da sua bolha, ou seja, pessoas que compartilham ideias, gostos e estilos de vida semelhantes aos seus. Isso aumenta as chances de encontros significativos e relacionamentos duradouros!
-                        </Typography>
-
-                        <Typography
-                            variant="body1"
-                            paragraph
-                            sx={{
-                                lineHeight: 1.8,
-                                fontWeight: 500,
-                                color: '#fff',
-                                animation: 'fadeIn 1.8s',
-                            }}
-                        >
-                            Mostre-se sem medo, sem inseguranças e saiba que será valorizado pelo seu jeito único de ser.
-                            Chegou a hora de encontrar alguém que te admire pelo que você é – encontre seu amor de verdade.
-                            Baixe agora e viva a experiência de se conectar com quem realmente combina com você!
-                        </Typography> */}
-
+                        {/* Botão de login com Google */}
                         <Button
+                            onClick={handleGoogleSignIn}
                             variant="contained"
-                            color="primary"
-                            size="large"
                             sx={{
-                                mt: 3,
                                 mb: 2,
-                                px: 5,
-                                fontWeight: 'bold',
-                                fontSize: '1.1rem',
-                                borderRadius: 2,
-                                boxShadow: '0 2px 8px #0008',
-                                background: 'linear-gradient(90deg, #212121 0%, #7b1fa2 100%)',
-                                transition: 'transform 0.2s',
+                                background: 'linear-gradient(90deg, #4285F4 0%, #34A853 100%)',
+                                color: '#fff',
+                                fontWeight: 600,
+                                textTransform: 'none',
+                                boxShadow: '0 2px 8px #0004',
                                 '&:hover': {
-                                    background: 'linear-gradient(90deg, #7b1fa2 0%, #212121 100%)',
-                                    transform: 'scale(1.05)'
-                                }
+                                    background: 'linear-gradient(90deg, #357ae8 0%, #2e7d32 100%)',
+                                },
                             }}
-                            href="/pages/Cadastro"
+                            fullWidth
                         >
-                            Cadastre-se
+                            Entrar com Google
                         </Button>
 
                         <Box mt={2}>
@@ -137,5 +186,12 @@ export default function Apresentação() {
                 </Paper>
             </Container>
         </Box>
+
+    )
+}
+export default function Apresentação() {
+    return (
+        <Apresentacao />
+
     )
 }

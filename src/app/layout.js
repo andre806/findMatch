@@ -1,4 +1,5 @@
-
+import { SessionProvider } from "next-auth/react";
+import SessionProviderWrapper from "./SessionProviderWrapper";
 
 export const metadata = {
   title: 'GothicMatch - Encontros Góticos',
@@ -10,6 +11,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
+    
     <html lang="pt-BR">
       <head>
         <meta charSet="UTF-8" />
@@ -35,10 +37,11 @@ export default function RootLayout({ children }) {
               </div>
             </nav>
           </header>
-          
+          <SessionProviderWrapper>
           <main className="main-content">
             {children}
           </main>
+          </SessionProviderWrapper>
           
           <footer className="app-footer">
             <p>&copy; 2025 GothicMatch. Conectando almas .</p>
@@ -46,5 +49,6 @@ export default function RootLayout({ children }) {
         </div>
       </body>
     </html>
+   
   );
 }

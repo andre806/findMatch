@@ -1,0 +1,39 @@
+{
+  "Região Norte": {
+    "Acre": ["Rio Branco"],
+    "Amapá": ["Macapá"],
+    "Amazonas": ["Manaus", "Parintins"],
+    "Pará": ["Belém", "Ananindeua", "Santarém"],
+    "Rondônia": ["Porto Velho", "Ji-Paraná"],
+    "Roraima": ["Boa Vista"],
+    "Tocantins": ["Palmas", "Araguaína"]
+  },
+  "Região Nordeste": {
+    "Alagoas": ["Maceió", "Arapiraca"],
+    "Bahia": ["Salvador", "Feira de Santana", "Vitória da Conquista"],
+    "Ceará": ["Fortaleza", "Juazeiro do Norte", "Sobral"],
+    "Maranhão": ["São Luís", "Imperatriz"],
+    "Paraíba": ["João Pessoa", "Campina Grande"],
+    "Pernambuco": ["Recife", "Olinda", "Caruaru"],
+    "Piauí": ["Teresina", "Parnaíba"],
+    "Rio Grande do Norte": ["Natal", "Mossoró"],
+    "Sergipe": ["Aracaju", "Nossa Senhora do Socorro"]
+  },
+  "Região Centro-Oeste": {
+    "Distrito Federal": ["Brasília"],
+    "Goiás": ["Goiânia", "Anápolis", "Aparecida de Goiânia"],
+    "Mato Grosso": ["Cuiabá", "Rondonópolis", "Sinop"],
+    "Mato Grosso do Sul": ["Campo Grande", "Dourados"]
+  },
+  "Região Sudeste": {
+    "Espírito Santo": ["Vitória", "Vila Velha", "Serra"],
+    "Minas Gerais": ["Belo Horizonte", "Uberlândia", "Juiz de Fora"],
+    "Rio de Janeiro": ["Rio de Janeiro", "Niterói", "Duque de Caxias"],
+    "São Paulo": ["São Paulo", "Campinas", "Guarulhos", "Santos"]
+  },
+  "Região Sul": {
+    "Paraná": ["Curitiba", "Londrina", "Maringá"],
+    "Rio Grande do Sul": ["Porto Alegre", "Caxias do Sul", "Pelotas"],
+    "Santa Catarina": ["Florianópolis", "Joinville", "Blumenau"]
+  }
+}
