@@ -1,6 +1,7 @@
-package com.example.demo.models;
+package com.example.demo.modules.usuarios;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -8,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Document(collection = "user")
 @Data
@@ -37,4 +37,5 @@ public class User {
     private String educacao;
     private String urlFotoPerfil; 
     private boolean premium;
+    private Set<String> perfisVisualizados;
 }

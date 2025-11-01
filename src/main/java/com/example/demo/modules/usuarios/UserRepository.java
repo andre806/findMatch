@@ -1,12 +1,17 @@
-package com.example.demo.repository;
+package com.example.demo.modules.usuarios;
+
+import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import com.example.demo.models.User;
+
 
 
 
 public interface UserRepository extends MongoRepository<User, String>{
     boolean existsByEmail(String email);
      User findByEmail(String email);
+     User findByNome(String nome);
+    List<User> findByCidade(String cidade);
+    List<User> findByGenero(String genero);
 }
