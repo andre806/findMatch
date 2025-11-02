@@ -21,6 +21,12 @@ import com.example.demo.services.Jwt;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.example.demo.modules.chat.Repository.ChatRepository;
+import com.example.demo.modules.chat.models.Chat;
+
 @RestController
 @RequestMapping("/Relacionamento")
 public class RelacionamentoController {
@@ -29,14 +35,26 @@ public class RelacionamentoController {
     private final AWS aws;
     private final Jwt jwt;
     private final Cryp cryp;
+    private final ChatRepository chatRepo;
 
 
-    public RelacionamentoController(CurtidaRepository curtidaRepo, MatchRepository matchRepo, UserRepository userRepo, AWS aws, Jwt jwt, Cryp cryp) {
+    public RelacionamentoController(CurtidaRepository curtidaRepo, MatchRepository matchRepo, UserRepository userRepo, AWS aws, Jwt jwt, Cryp cryp, ChatRepository chatRepo) {
         this.curtidaRepo = curtidaRepo;
         this.userRepo = userRepo;
         this.aws = aws;
         this.jwt = jwt;
         this.cryp = cryp;
+        this.chatRepo = chatRepo;
+
+    }
+    public String iniciarChat(String pessoaCurtiu, String pessoaCurtida){
+        try{
+        var chat = new Chat(pessoaCurtiu, pessoaCurtida);
+        chatRepo.save(chat);
+        return "chat criado com sucesso";
+        }catch(Exception e){
+            return "erro";
+        }
     }
 
     @PostMapping("/curtir")
@@ -47,8 +65,15 @@ public class RelacionamentoController {
         boolean jaCurtiu = curtidaRepo.existsByCurtidoIdAndQuemCurteId(email, perfilId);
         boolean reciproco = curtidaRepo.existsByCurtidoIdAndQuemCurteId(perfilId, email);
         if (jaCurtiu && reciproco) {
-            
-            return ResponseEntity.ok().body("match");
+           var newChat = iniciarChat(perfilId, email);
+            if(newChat.equals( "chat criado com sucesso")){
+                return ResponseEntity.ok().body("chat Criado");
+                
+            }else{
+                return ResponseEntity.ok().body("erro ao criar o chat");
+
+            }
+
         }
         curtidaRepo.save(entity);
         return ResponseEntity.ok().body("curtida registrada");
@@ -56,68 +81,11 @@ public class RelacionamentoController {
             return ResponseEntity.ok().body("erro no try"+ e.getMessage());
         }
     }
-    @GetMapping("/Fy")
-    public ResponseEntity<?> Fy(HttpServletRequest request) {
-        try {
-            // Extrai o token JWT dos cookies
-            String token = null;
-            if (request.getCookies() != null) {
-                for (Cookie cookie : request.getCookies()) {
-                    if ("token".equals(cookie.getName())) {
-                        token = cookie.getValue();
-                        break;
-                    }
-                }
-            }
-            if (token == null) {
-                return ResponseEntity.status(401).body("Token não encontrado nos cookies");
-            }
-            String email = jwt.getEmailFromToken(token);
-            var user = userRepo.findByEmail(email);
-            var cidades = user.getCidadesExibicao();
-            var genero = user.getToProcurando();
-
-            List<User> usersCidade;
-            if (cidades.contains("todas")) {
-                usersCidade = userRepo.findAll();
-            } else {
-                usersCidade = cidades.stream()
-                        .flatMap(p -> userRepo.findByCidade(p).stream())
-                        .collect(Collectors.toList());
-            }
-
-            // Normaliza o gênero
-            if (genero.equals("mulher")) {
-                genero = "feminino";
-            }
-            if (genero.equals("homem")) {
-                genero = "masculino";
-            }
-
-            List<User> usersCidadeGenero;
-            if (genero.equals("qualquer um") || genero.equals("outro")) {
-                usersCidadeGenero = usersCidade; // Não filtra por gênero
-            } else {
-                final String generoFinal = genero;
-                usersCidadeGenero = usersCidade.stream()
-                    .filter(p -> p.getGenero() != null && p.getGenero().equalsIgnoreCase(generoFinal))
-                    .collect(Collectors.toList());
-            }
-
-            // Obtenha os ids visualizados pelo usuário logado (ids reais)
-            Set<String> perfisVisualizados = user.getPerfisVisualizados();
-            
-            // Retorna apenas os ids criptografados que NÃO estão na lista de visualizados
-            List<String> idsNaoVisualizados = usersCidadeGenero.stream()
-                .filter(u -> !perfisVisualizados.contains(u.getId()))
-                .map(u -> cryp.Cryptografar(u.getId()))
-                .collect(Collectors.toList());
-
-            return ResponseEntity.ok().body(idsNaoVisualizados);
-        } catch (Exception e) {
-            return ResponseEntity.ok().body("erro no try"+ e.getMessage());
-        }
-    }
-
+    //endpoint superLike
+    //endpoint para iniciar chat 
+    //
+   
+    
+   
     
 }
