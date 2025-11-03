@@ -76,7 +76,7 @@ export default function Passo2({ onSubmit }) {
             body: JSON.stringify(userToSend)
         })
         if (onSubmit) onSubmit(userToSend);
-        router.push("/pages/Private/perfil");
+        router.push("/pages/perfil");
     }
 
     return (

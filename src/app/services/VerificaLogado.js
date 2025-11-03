@@ -1,27 +1,40 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSession } from "next-auth/react";
-
-function getTokenFromCookies() {
-    if (typeof document === "undefined") return null;
-    const match = document.cookie.match(/(?:^|; )token=([^;]*)/);
-    return match ? match[1] : null;
-}
 
 export default function RequireAuth({ children }) {
+    const url = process.env.NEXT_PUBLIC_URL;
+    const [logado, setLogado] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
-        async function checkAuth() {
-            const session = await getSession();
-            const token = getTokenFromCookies();
-            if (!session && !token) {
-                router.replace("/");
-            }
+        async function Verifica() {
+            const db = await fetch(`${url}User/VerificaLogado`,{
+                method:"GET",
+                credentials:"include"
+            });
+            const res = await db.json();
+            setLogado(res);
         }
-        checkAuth();
-    }, [router]);
+        Verifica();
+    }, [url]);
 
-    return children;
+    useEffect(() => {
+        if (logado === null) return; // ainda carregando
+        if (logado === true && window.location.pathname !== "/pages/perfil") {
+            router.replace("/pages/perfil");
+        } else if (logado === false && window.location.pathname !== "/") {
+            router.replace("/");
+        }
+    }, [logado, router]);
+
+    if (logado === null) return null; // aguarda verificação
+
+    // Só renderiza children se já estiver na rota correta
+    if ((logado === true && window.location.pathname === "/pages/perfil") ||
+        (logado === false && window.location.pathname === "/")) {
+        return children;
+    }
+
+    return null;
 }

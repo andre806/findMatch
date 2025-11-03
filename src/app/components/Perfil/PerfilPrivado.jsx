@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getEmail } from "@/app/services/getEmail";
-
+import AdicionarFoto from "./AdicionsrFoto";
+import FotosByUser from "./FotosByUser";
 export default function PPrivado() {
     const [email, setEmail] = useState(null);
     const [perfil, setPerfil] = useState(null);
@@ -53,6 +54,8 @@ export default function PPrivado() {
             ) : (
                 <div>Carregando...</div>
             )}
+            <AdicionarFoto></AdicionarFoto>
+            <FotosByUser></FotosByUser>
         </div>
     );
 }

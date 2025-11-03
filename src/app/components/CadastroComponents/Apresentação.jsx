@@ -1,7 +1,7 @@
 import { Container, Typography, Box, Paper, Button, Link } from '@mui/material';
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from 'react';
-
+import { SessionProvider } from 'next-auth/react';
 function getTokenFromCookies() {
     if (typeof document === "undefined") return null;
     const match = document.cookie.match(/(?:^|; )token=([^;]*)/);
@@ -9,67 +9,82 @@ function getTokenFromCookies() {
 }
 
 function Apresentacao() {
-    const { data: session } = useSession();
     const url = process.env.NEXT_PUBLIC_URL;
-    const [logado, setLogado] = useState(null)
-    const [user, setUser] = useState({
-        nome: "",
-        email: "",
-    });
+    const { data: session, status } = useSession();
+    const [logado, setLogado] = useState(null);
+    const [user, setUser] = useState({ nome: "", email: "" });
+    const [passo1, setPasso1] = useState(null);
 
     useEffect(() => {
-        if (session && session.user) {
-            setUser({
-                nome: session.user.name,
-                email: session.user.email
-            });
-
-
-            const fetchLogado = async () => {
-                const db = await fetch(`${url}User/VerificaLogado?email=${session.user.email}`, {
-                    method: "GET",
-                    headers: { "content-type": "application/json" }
-                })
-                const res = await db.json();
-                setLogado(res)
-            }
-            fetchLogado();
+        if (!session?.user?.email) return;
+        async function fetchPasso1() {
+            const db = await fetch(`${url}User/verificaPasso1?email=${session.user.email}`);
+            const res = await db.json();
+            setPasso1(res);
         }
+        fetchPasso1();
+    }, [session, url]);
+
+    useEffect(() => {
+        if (status === "authenticated" && passo1 !== null) {
+            if (passo1 === false) {
+                window.location.href = "/pages/Passo1";
+            } else {
+                window.location.href = "/pages/perfil";
+            }
+        }
+    }, [status, passo1]);
+
+    useEffect(() => {
+        if (!session) return;
+        setUser(prev => ({
+            ...prev,
+            email: session.user?.email || "",
+            nome: session.user?.name || ""
+        }));
     }, [session]);
+
+    useEffect(() => {
+        if (!session) return;
+        async function fetchLogado() {
+            const db = await fetch(`${url}User/VerificaLogadoEmail?email=${session.user.email}`);
+            const res = await db.json();
+            setLogado(res);
+        }
+        fetchLogado();
+    }, [session, url]);
+
+    useEffect(() => {
+        if (!session || logado === null) return;
+        if (logado === true) {
+            login();
+        } else {
+            cadastrar();
+        }
+        // eslint-disable-next-line
+    }, [logado, session]);
+
     const cadastrar = async () => {
         await fetch(`${url}User/createUser`, {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify(user)
-        })
-        // Removido router.push("/pages/Passo2");
-    }
+        });
+    };
     const login = async () => {
         await fetch(`${url}User/login?email=${user.email}`, {
             method: "POST",
             headers: { "content-type": "application/json" },
             credentials: "include"
-        })
-        // Removido router.push("/pages/Private/perfil");
-    }
+        });
+    };
     const [loginRealizado, setLoginRealizado] = useState(false);
-
-    useEffect(() => {
-        if (!session || loginRealizado) return;
-
-        if (logado === false) {
-            cadastrar().then(() => setLoginRealizado(true));
-        } else if (logado === true) {
-            login().then(() => setLoginRealizado(true));
-        }
-    }, [logado, session, loginRealizado]);
 
     const handleGoogleSignIn = () => {
         const token = getTokenFromCookies();
         if (!token) {
             signIn("google", { callbackUrl: "http://localhost:3000" });
         }
-        // Se já tem token, não faz nada (ou pode redirecionar)
     };
 
     return (
@@ -189,9 +204,11 @@ function Apresentacao() {
 
     )
 }
+
 export default function Apresentação() {
     return (
+       < SessionProvider>
         <Apresentacao />
-
+        </SessionProvider>
     )
 }
