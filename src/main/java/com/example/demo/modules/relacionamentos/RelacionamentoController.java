@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.demo.modules.chat.Repository.ChatRepository;
 import com.example.demo.modules.chat.models.Chat;
-
+import com.example.demo.modules.relacionamentos.Match;
 @RestController
 @RequestMapping("/Relacionamento")
 public class RelacionamentoController {
@@ -36,6 +36,7 @@ public class RelacionamentoController {
     private final Jwt jwt;
     private final Cryp cryp;
     private final ChatRepository chatRepo;
+    private final MatchRepository matchRepo;
 
 
     public RelacionamentoController(CurtidaRepository curtidaRepo, MatchRepository matchRepo, UserRepository userRepo, AWS aws, Jwt jwt, Cryp cryp, ChatRepository chatRepo) {
@@ -45,7 +46,7 @@ public class RelacionamentoController {
         this.jwt = jwt;
         this.cryp = cryp;
         this.chatRepo = chatRepo;
-
+        this.matchRepo = matchRepo;
     }
     public String iniciarChat(String pessoaCurtiu, String pessoaCurtida){
         try{
@@ -60,23 +61,36 @@ public class RelacionamentoController {
     @PostMapping("/curtir")
     public ResponseEntity<?> curtir(HttpServletRequest request, @RequestParam String perfilId) {
         try {
+            // Substitui espaços por '+' para tratar possíveis problemas de codificação Base64
+            perfilId = perfilId.replace(' ', '+');
             String email = jwt.getEmail(request);
-           Curtida entity = new Curtida(email, perfilId);
-        boolean jaCurtiu = curtidaRepo.existsByCurtidoIdAndQuemCurteId(email, perfilId);
-        boolean reciproco = curtidaRepo.existsByCurtidoIdAndQuemCurteId(perfilId, email);
-        if (jaCurtiu && reciproco) {
-           var newChat = iniciarChat(perfilId, email);
-            if(newChat.equals( "chat criado com sucesso")){
-                return ResponseEntity.ok().body("chat Criado");
-                
-            }else{
-                return ResponseEntity.ok().body("erro ao criar o chat");
+            String quemCurteId = userRepo.findByEmail(email).getId();
 
+            // Descriptografa os IDs antes de usar
+            String decryptedPerfilId = cryp.descriptografar(perfilId);
+            Curtida entity = new Curtida(quemCurteId, decryptedPerfilId);
+
+            // Salva a curtida antes de verificar
+            curtidaRepo.save(entity);
+
+            // Agora verifica se há reciprocidade e se já curtiu (após salvar)
+            boolean jaCurtiu = curtidaRepo.existsByCurtidoIdAndQuemCurteId(quemCurteId, decryptedPerfilId);
+            boolean reciproco = curtidaRepo.existsByCurtidoIdAndQuemCurteId(decryptedPerfilId, quemCurteId);
+
+            var quemCurteIdCrypt = cryp.Cryptografar(quemCurteId);
+            var curtidoIdCrypt = cryp.Cryptografar(decryptedPerfilId);
+
+            if (reciproco && jaCurtiu) {
+                var newChat = iniciarChat(quemCurteIdCrypt, curtidoIdCrypt);
+                var newMatch = new Match(quemCurteIdCrypt, curtidoIdCrypt);
+                matchRepo.save(newMatch);
+                if(newChat.equals("chat criado com sucesso")){
+                    return ResponseEntity.ok().body("chat Criado");
+                }else{
+                    return ResponseEntity.ok().body("erro ao criar o chat");
+                }
             }
-
-        }
-        curtidaRepo.save(entity);
-        return ResponseEntity.ok().body("curtida registrada");
+            return ResponseEntity.ok().body("curtida registrada");
         } catch (Exception e) {
             return ResponseEntity.ok().body("erro no try"+ e.getMessage());
         }

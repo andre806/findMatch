@@ -17,6 +17,7 @@ import com.example.demo.services.Jwt;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashSet;
 
 @RestController
 @RequestMapping("/feed")
@@ -35,20 +36,8 @@ public class FeedController {
     @GetMapping("/Fy")
     public ResponseEntity<?> Fy(HttpServletRequest request) {
         try {
-            // Extrai o token JWT dos cookies
-            String token = null;
-            if (request.getCookies() != null) {
-                for (Cookie cookie : request.getCookies()) {
-                    if ("token".equals(cookie.getName())) {
-                        token = cookie.getValue();
-                        break;
-                    }
-                }
-            }
-            if (token == null) {
-                return ResponseEntity.status(401).body("Token não encontrado nos cookies");
-            }
-            String email = jwt.getEmailFromToken(token);
+            
+            String email = jwt.getEmail(request);
             var user = userRepo.findByEmail(email);
             var cidades = user.getCidadesExibicao();
             var genero = user.getToProcurando();
@@ -81,7 +70,7 @@ public class FeedController {
             }
 
             // Obtenha os ids visualizados pelo usuário logado (ids reais)
-            Set<String> perfisVisualizados = user.getPerfisVisualizados();
+            Set<String> perfisVisualizados = user.getPerfisVisualizados() != null ? user.getPerfisVisualizados() : new HashSet<>();
             
             // Retorna apenas os ids criptografados que NÃO estão na lista de visualizados
             List<String> idsNaoVisualizados = usersCidadeGenero.stream()

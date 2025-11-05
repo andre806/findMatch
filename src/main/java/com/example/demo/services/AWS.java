@@ -47,10 +47,10 @@ public class AWS {
     }
 
     public String uploadFoto(MultipartFile file) throws IOException{
-        String fileName = file.getOriginalFilename();
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("\\s+", "_");
         s3Client.putObject(bucketName, fileName, file.getInputStream(), null);
         // Retorna presigned URL
-        return generatePresignedUrl(fileName).toString();
+        return fileName;
     }
     public String excluirFoto(String urlFoto){
         try {
@@ -75,16 +75,10 @@ public class AWS {
         // Retorna presigned URL
         return generatePresignedUrl(fileName).toString();
     }
-    public String generatPressignedUrl(String url){
-        // Extrai o fileKey do final da URL (após o último '/'), removendo parâmetros
-        if (url == null || url.isEmpty()) return null;
-        String fileKey = url.substring(url.lastIndexOf("/") + 1);
-        int queryIndex = fileKey.indexOf("?");
-        if (queryIndex != -1) {
-            fileKey = fileKey.substring(0, queryIndex);
-        }
-        return generatePresignedUrl(fileKey).toString();
-    }
+    public String generatPressignedUrl(String fileKey) {
+    if (fileKey == null || fileKey.isEmpty()) return null;
+    return generatePresignedUrl(fileKey).toString();
+}
     public String getOriginalS3Url(String url) {
     if (url == null || url.isEmpty()) return null;
     // Extrai o fileKey do final da URL (após o último '/'), removendo parâmetros
@@ -95,5 +89,12 @@ public class AWS {
     }
     // Monta a URL padrão do S3
     return "https://" + bucketName + ".s3.amazonaws.com/" + fileKey;
+}
+public String extractFileKey(String url) {
+    // Extrai apenas o nome do arquivo da URL
+    int start = url.lastIndexOf("/") + 1;
+    int end = url.indexOf("?", start);
+    if (end == -1) end = url.length();
+    return url.substring(start, end);
 }
 }

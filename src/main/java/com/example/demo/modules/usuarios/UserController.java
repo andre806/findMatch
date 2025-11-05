@@ -66,8 +66,19 @@ public class UserController {
         }
     }
     @GetMapping("/VerificaLogado")
-    public ResponseEntity<?> VerificaLogado(@RequestParam String email){
+    public ResponseEntity<?> VerificaLogado(HttpServletRequest request){
        try{
+        var email = jwt.getEmail(request);
+        boolean res = userRepo.existsByEmail(email);
+        return ResponseEntity.ok().body(res);
+       }catch (Exception e) {
+           return ResponseEntity.badRequest().body("erro no try" + e.getMessage());
+        }
+    }
+    @GetMapping("/VerificaLogadoEmail")
+    public ResponseEntity<?> VerificaLogadoEmail(@RequestParam String email){
+       try{
+       
         boolean res = userRepo.existsByEmail(email);
         return ResponseEntity.ok().body(res);
        }catch (Exception e) {
@@ -184,7 +195,9 @@ public class UserController {
    @GetMapping("/Miniatura")
    public ResponseEntity<?> Miniatura(@RequestParam String userId) {
        try {
-         var userIdCryp = cryp.descriptografar(userId);
+           // Remove todos os espaços do userId antes de descriptografar
+           String userIdSanitized = userId.replaceAll("\\s+", "");
+           var userIdCryp = cryp.descriptografar(userIdSanitized);
            var userOpt = userRepo.findById(userIdCryp);
            var user = userOpt.orElse(null);
            if (user == null) {
@@ -201,7 +214,6 @@ public class UserController {
            map.put("ocupação", user.getOcupacao());
            map.put("sexualidade", user.getSexualidade());
            map.put("educacao", user.getEducacao());
-
 
            return ResponseEntity.ok().body(map);
        } catch (Exception e) {
@@ -241,13 +253,16 @@ public class UserController {
       try {
         String email = jwt.getEmail(request);
          var user = userRepo.findByEmail(email);
-         var foto = aws.uploadFoto(file);
          var urls = user.getUrlFotos();
          if(urls == null){
             urls = new ArrayList<>();
             user.setUrlFotos(urls);
          }
-         urls.add(foto);
+         if (urls.size() >= 4) {
+            return ResponseEntity.badRequest().body("Limite máximo de 4 fotos atingido");
+         }
+         var fileKey = aws.uploadFoto(file);
+         urls.add(fileKey);
          user.setUrlFotos(urls); // garantir atualização
          userRepo.save(user);
          return ResponseEntity.ok().body("foto salva");
@@ -255,62 +270,88 @@ public class UserController {
          return ResponseEntity.badRequest().body("erro no try" + e.getMessage());
       }
    }
+   @GetMapping("/listarFotosByUser")
+   public ResponseEntity<?> listarFotosByUser(@RequestParam String userId) {
+      try {
+         String userIdSanitized = cryp.descriptografar(userId);
+         var userOpt = userRepo.findById(userIdSanitized);
+         var user = userOpt.orElse(null);
 
- // ...existing code...
+         // Se não encontrar, tenta descriptografar e buscar de novo
+         if (user == null) {
+            try {
+               String userIdDescrypt = cryp.descriptografar(userIdSanitized);
+               userOpt = userRepo.findById(userIdDescrypt);
+               user = userOpt.orElse(null);
+            } catch (Exception e) {
+               // ignora, vai retornar erro abaixo
+            }
+         }
+
+         if (user == null) {
+            return ResponseEntity.badRequest().body("usuario não encontrado");
+         }
+         var fileKeys = user.getUrlFotos();
+         if (fileKeys == null) {
+            fileKeys = new ArrayList<>();
+         }
+         // Gera presigned URLs para cada foto a partir do fileKey
+         ArrayList<String> presignedUrls = new ArrayList<>();
+         for (String fileKey : fileKeys) {
+            presignedUrls.add(aws.generatPressignedUrl(fileKey));
+         }
+         return ResponseEntity.ok().body(presignedUrls);
+      } catch (Exception e) {
+         return ResponseEntity.badRequest().body("erro no try" + e.getMessage());
+      }
+   }
 @PostMapping("/excluirFoto")
-public ResponseEntity<?> excluirFoto(HttpServletRequest request, @RequestParam String fotoUrl) {
+public ResponseEntity<?> excluirFoto(HttpServletRequest request, @RequestParam String fileKey) {
    try {
       String email = jwt.getEmail(request);
       var user = userRepo.findByEmail(email);
 
-      // Extrai apenas o path do arquivo da URL
-      try{
-         aws.excluirFoto(fotoUrl);
-      }catch (Exception e) {
-      return ResponseEntity.badRequest().body("não excluiu no aws" + e.getMessage());
-   }
-   try{
-     var fotos = user.getUrlFotos();
-String fotoKey = fotoUrl.split("\\?")[0]; // pega só a parte antes do '?'
-int idx = -1;
-for (int i = 0; i < fotos.size(); i++) {
-    String salva = fotos.get(i).split("\\?")[0];
-    if (salva.equals(fotoKey)) {
-        idx = i;
-        break;
-    }
-}
-if (idx != -1) {
-    fotos.remove(idx);
-    user.setUrlFotos(fotos);
-    userRepo.save(user);
-}
-   }catch (Exception e) {
-      return ResponseEntity.badRequest().body("não apagou no db" + e.getMessage());
-   }
-      
+      // Extrai o nome do arquivo se vier uma URL
+      String sanitizedFileKey = aws.extractFileKey(fileKey.trim());
+      ArrayList<String> fotos = user.getUrlFotos() == null ? new ArrayList<>() : new ArrayList<>(user.getUrlFotos());
+      System.out.println("fileKey recebido: " + sanitizedFileKey);
+      System.out.println("Lista de fotos do usuário: " + fotos);
+
+      boolean removed = fotos.removeIf(fk -> fk.trim().equals(sanitizedFileKey));
+      user.setUrlFotos(fotos); // Atualiza explicitamente
+      userRepo.save(user);
+      if (!removed) {
+         return ResponseEntity.badRequest().body("fileKey não encontrado na lista do usuário");
+      }
+      // Exclui a foto do S3 usando o nome do arquivo
+      try {
+         aws.excluirFoto(sanitizedFileKey);
+      } catch (Exception e) {
+         return ResponseEntity.badRequest().body("não excluiu no aws" + e.getMessage());
+      }
       return ResponseEntity.ok().body("foto excluída");
    } catch (Exception e) {
       return ResponseEntity.badRequest().body("erro no try" + e.getMessage());
    }
 }
-// ...existing code...
-
 
    @PostMapping("/trocarFoto")
-   public ResponseEntity<?> trocarFoto(HttpServletRequest request, @RequestParam String antigaUrl, @RequestBody MultipartFile novaFoto) {
+   public ResponseEntity<?> trocarFoto(HttpServletRequest request, @RequestParam String antigaFileKey, @RequestBody MultipartFile novaFoto) {
       try {
          String email = jwt.getEmail(request);
          var user = userRepo.findByEmail(email);
-         var novaUrl = aws.trocarFotos(antigaUrl, novaFoto); // usa método do serviço
-         var urls = user.getUrlFotos();
-         int idx = urls.indexOf(antigaUrl);
+         // Troca a foto no S3 e retorna o novo fileKey
+         var novoFileKey = aws.trocarFotos(antigaFileKey, novaFoto);
+         var fileKeys = user.getUrlFotos();
+         var key = aws.extractFileKey(antigaFileKey);
+         int idx = fileKeys.indexOf(key.trim());
+         var novaKey = aws.extractFileKey(novoFileKey);
          if (idx != -1) {
-            urls.set(idx, novaUrl);
+            fileKeys.set(idx, novaKey.trim());
          } else {
-            urls.add(novaUrl);
+            fileKeys.add(novaKey.trim());
          }
-         user.setUrlFotos(urls);
+         user.setUrlFotos(fileKeys);
          userRepo.save(user);
          return ResponseEntity.ok().body("foto trocada");
       } catch (Exception e) {
@@ -318,29 +359,6 @@ if (idx != -1) {
       }
    }
 
-   @GetMapping("/listarFotosByUser")
-   public ResponseEntity<?> listarFotosByUser(@RequestParam String userId) {
-      try {
-         var userIdDescrypt = cryp.descriptografar(userId);
-         var userOpt = userRepo.findById(userIdDescrypt);
-         var user = userOpt.orElse(null);
-         if (user == null) {
-            return ResponseEntity.badRequest().body("usuario não encontrado");
-         }
-         var urls = user.getUrlFotos();
-         if (urls == null) {
-            urls = new ArrayList<>();
-         }
-         // Gera presigned URLs para cada foto
-         ArrayList<String> presignedUrls = new ArrayList<>();
-         for (String url : urls) {
-            presignedUrls.add(aws.generatPressignedUrl(url));
-         }
-         return ResponseEntity.ok().body(presignedUrls);
-      } catch (Exception e) {
-         return ResponseEntity.badRequest().body("erro no try" + e.getMessage());
-      }
-   }
    @PostMapping("/visualizarPerfil")
    public ResponseEntity<?> visualizarPerfil(@RequestParam String perfilId, HttpServletRequest request) {
       String perfilIdDescrypt;
@@ -377,6 +395,18 @@ if (idx != -1) {
          return ResponseEntity.badRequest().body("erro no try" + e.getMessage());
       }
    }
+   @GetMapping("/getIdCodificado")
+   public ResponseEntity<?> getIdCodificado(HttpServletRequest request) {
+      try{
+         var email = jwt.getEmail(request);
+         var userId = userRepo.findByEmail(email).getId();
+         var IdCriptografado = cryp.Cryptografar(userId);
+         return ResponseEntity.ok().body(IdCriptografado);
+      }catch(Exception e){
+         return ResponseEntity.badRequest().body("erro no try" + e.getMessage()); 
+      }
+   }
+   
 }
 
 

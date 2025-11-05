@@ -17,14 +17,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import com.example.demo.modules.usuarios.User;
 import java.util.Set;
+import java.util.HashSet;
+import com.example.demo.services.Cryp;
 @RestController
 @RequestMapping("/explorar")
 public class ExplorarController {
     private final UserRepository userRepo;
     private final Jwt jwt;
-    public ExplorarController(UserRepository userRepo, Jwt jwt ){
+    private final Cryp cryp;
+    public ExplorarController(UserRepository userRepo, Jwt jwt, Cryp cryp){
         this.jwt = jwt;
         this.userRepo = userRepo;
+        this.cryp = cryp;
     }
     @GetMapping("/explorarcidades")
     public ResponseEntity<?> ExplorarCidades(@RequestParam String cidade, HttpServletRequest request) {
@@ -34,13 +38,16 @@ public class ExplorarController {
             List<User> usersByCidade = userRepo.findByCidade(cidade);
             List<String> listaDeIds = new ArrayList<>();
             Set<String> IdsVisualizados = user.getPerfisVisualizados();
+            if (IdsVisualizados == null) {
+                IdsVisualizados = new HashSet<>();
+            }
 
             int limit = Math.min(10, usersByCidade.size());
             for(int i = 0; i< limit; i++){
                 if(IdsVisualizados.contains(usersByCidade.get(i).getId())){
                     continue;
                 }else{
-                    listaDeIds.add(usersByCidade.get(i).getId());
+                    listaDeIds.add(cryp.Cryptografar(usersByCidade.get(i).getId()));
                 }
             }
             if(listaDeIds.isEmpty()){
@@ -58,6 +65,10 @@ public class ExplorarController {
             var email = jwt.getEmail(request);
             var user = userRepo.findByEmail(email);
             Set<String> idsVisualizados = user.getPerfisVisualizados();
+             if (idsVisualizados == null) {
+                idsVisualizados = new HashSet<>();
+            }
+
             List<User> userGosto = userRepo.findByGostos(gosto);
             List<String> listaIds = new ArrayList<>();
             int limit  = Math.min(10, userGosto.size());
@@ -65,7 +76,7 @@ public class ExplorarController {
                 if(idsVisualizados.contains(userGosto.get(i).getId())){
                     continue;
                 }else{
-                    listaIds.add(userGosto.get(i).getId());
+                    listaIds.add(cryp.Cryptografar(userGosto.get(i).getId()));
                 }
             }
             if(listaIds.isEmpty()){
@@ -86,13 +97,17 @@ public class ExplorarController {
             var user = userRepo.findByEmail(email);
             List<User> usersByProfissão = userRepo.findByOcupacao(profissao);
             Set<String> IdsVisualizados = user.getPerfisVisualizados();
+             if (IdsVisualizados == null) {
+                IdsVisualizados = new HashSet<>();
+            }
+
             List<String> listaIds = new ArrayList<>();
             int limit = Math.min(10, usersByProfissão.size());
             for(int i = 0; i < limit; i++){
                 if(IdsVisualizados.contains(usersByProfissão.get(i).getId())){
                     continue;
                 }else{
-                    listaIds.add(usersByProfissão.get(i).getId());
+                    listaIds.add(cryp.Cryptografar(usersByProfissão.get(i).getId()));
                 }
             }
             if(listaIds.isEmpty()){
