@@ -19,7 +19,7 @@ export default function FotosByUser() {
 
     async function fetchFotos() {
         if (!idCodificado) return; // só busca se idCodificado estiver definido
-        const response = await fetch(`${url}User/listarFotosByUser?userId=${idCodificado}`, {
+        const response = await fetch(`${url}User/listarFotosByUser?userId=${encodeURIComponent(idCodificado)}`, {
             method: "GET",
             headers: { "content-type": "application/json" },
             credentials: "include"

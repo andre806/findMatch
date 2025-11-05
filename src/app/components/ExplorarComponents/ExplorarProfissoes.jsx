@@ -56,16 +56,16 @@ export default function ExplorarProfissoes() {
         return -1;
     }
 
-    async function curtirPerfil(userId) {
-        await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id: userId })
-        });
-    }
+    // async function curtirPerfil(userId) {
+    //     await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
+    //         method: "POST",
+    //         credentials: "include",
+    //         headers: {
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify({ id: userId })
+    //     });
+    // }
 
     async function buscarMaisPerfis() {
         const db = await fetch(`${url}explorar/explorarprofissoes?profissao=${encodeURIComponent(profissao)}`, {

@@ -55,17 +55,17 @@ export default function ExplorarCidades() {
         return -1;
     }
 
-    async function curtirPerfil(userId) {
-        // Não altere o valor de userId
-        await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id: userId })
-        });
-    }
+    // async function curtirPerfil(userId) {
+    //     // Não altere o valor de userId
+    //     await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
+    //         method: "POST",
+    //         credentials: "include",
+    //         headers: {
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify({ id: userId })
+    //     });
+    // }
 
     async function buscarMaisPerfis() {
         // Rebusca perfis na cidade selecionada

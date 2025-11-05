@@ -4,7 +4,7 @@ import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function NavBar({ style = {} }) {
     const navItems = [
@@ -12,18 +12,33 @@ export default function NavBar({ style = {} }) {
         { href: "/pages/perfil", img: "/navbar/perfil.png", alt: "Perfil", label: "Perfil" },
         { href: "/pages/explorar", img: "/navbar/explore.png", alt: "Explorar", label: "Explorar" },
         { href: "/superLikes", img: "/navbar/superLikes.png", alt: "SuperLikes", label: "SuperLikes" },
-        { href: "/matchs", img: "/navbar/matchs.png", alt: "Matchs", label: "Matchs" }
+        { href: "/pages/directs", img: "/navbar/matchs.png", alt: "Matchs", label: "Matchs" },
+        { href: "/private/login", img: "/navbar/login.png", alt: "Login", label: "Login" } // Novo link para login
     ];
 
     const [hovered, setHovered] = useState(null);
+    const [isMobile, setIsMobile] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        // Atualiza isMobile após o carregamento do cliente
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 480);
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // Responsividade: ajuste tamanhos conforme a largura da tela
-    const isMobile = typeof window !== "undefined" && window.innerWidth <= 480;
     const iconSize = isMobile ? 40 : 72;
     const fontSize = isMobile ? 10 : 13;
     const gapSize = isMobile ? 2 : 8;
     const maxWidth = isMobile ? 320 : 540;
     const navHeight = isMobile ? 60 : 90;
+
+    if (!mounted) return null;
 
     return (
         <Paper
@@ -54,7 +69,7 @@ export default function NavBar({ style = {} }) {
             >
                 {navItems.map((item, idx) => (
                     <Box key={item.href} sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        <Link href={item.href} passHref legacyBehavior>
+                        <Link href={item.href} >
                             <IconButton
                                 sx={{
                                     p: 0,

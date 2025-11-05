@@ -56,16 +56,16 @@ export default function ExplorarGostos() {
         return -1;
     }
 
-    async function curtirPerfil(userId) {
-        await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id: userId })
-        });
-    }
+    // async function curtirPerfil(userId) {
+    //     await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
+    //         method: "POST",
+    //         credentials: "include",
+    //         headers: {
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify({ id: userId })
+    //     });
+    // }
 
     async function buscarMaisPerfis() {
         const db = await fetch(`${url}explorar/explorargostos?gosto=${encodeURIComponent(gosto)}`, {

@@ -63,16 +63,16 @@ export default function Fy() {
     }
 
     // Função para curtir (usada no drag e no botão)
-    async function curtirPerfil(userId) {
-        await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id: userId })
-        });
-    }
+    // async function curtirPerfil(userId) {
+    //     await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
+    //         method: "POST",
+    //         credentials: "include",
+    //         headers: {
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify({ id: userId })
+    //     });
+    // }
 
     function handleNext(direction = "", doLike = false) {
         setAnimDirection(direction);

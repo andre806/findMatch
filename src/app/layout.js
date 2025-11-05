@@ -10,7 +10,6 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-
     <html lang="pt-BR">
       <head>
         <meta charSet="UTF-8" />
@@ -36,11 +35,11 @@ export default function RootLayout({ children }) {
               </div>
             </nav>
           </header>
-       
-            <main className="main-content">
-              {children}
-            </main>
-          
+
+          <main className="main-content">
+            {children}
+          </main>
+
 
           <footer className="app-footer" style={{ position: "relative" }}>
             <NavBar style={{ bottom: 20 }} />
@@ -49,6 +48,5 @@ export default function RootLayout({ children }) {
         </div>
       </body>
     </html>
-
   );
 }

@@ -14,7 +14,7 @@ export default function TrocarFotoBtn({ urlAntiga }) {
         const formData = new FormData();
         formData.append("novaFoto", novaFoto);
 
-        await fetch(`${url}User/trocarFoto?antigaUrl=${encodeURIComponent(urlAntiga)}`, {
+        await fetch(`${url}User/trocarFoto?antigaFileKey=${encodeURIComponent(urlAntiga)}`, {
             method: "POST",
             credentials: "include",
             body: formData
