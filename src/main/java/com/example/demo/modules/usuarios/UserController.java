@@ -4,7 +4,9 @@ package com.example.demo.modules.usuarios;
 // Miniatura do usuário (exibição na “fy”)
 // Gostos/interesses do usuário   
 
-  //endpoint login
+  import org.springframework.beans.factory.annotation.Autowired;
+
+//endpoint login
 
   //end point para editar perfil
 
@@ -21,8 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.modules.usuarios.User;
-import com.example.demo.modules.usuarios.UserRepository;
+import com.example.demo.modules.relacionamentos.Curtida;
+
 
 import com.example.demo.services.Jwt;
 
@@ -40,9 +42,14 @@ import java.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+
 import com.example.demo.services.Cryp;
+import com.example.demo.modules.relacionamentos.CurtidaRepository;
+import com.example.demo.modules.relacionamentos.SuperLike;
+import com.example.demo.modules.relacionamentos.SuperLikeRepository;
 @RestController
 @RequestMapping("/User")
 public class UserController {
@@ -50,6 +57,10 @@ public class UserController {
     private final Jwt jwt;
     private final AWS aws;
     private final Cryp cryp;
+    @Autowired
+    CurtidaRepository curtidaRepo;
+    @Autowired
+    SuperLikeRepository superRepo;
     public UserController(UserRepository userRepo, Jwt jwt,AWS aws, Cryp cryp){
         this.userRepo = userRepo;
         this.jwt = jwt;
@@ -362,12 +373,18 @@ public ResponseEntity<?> excluirFoto(HttpServletRequest request, @RequestParam S
    @PostMapping("/visualizarPerfil")
    public ResponseEntity<?> visualizarPerfil(@RequestParam String perfilId, HttpServletRequest request) {
       String perfilIdDescrypt;
+    
       try {
          // Descriptografa o perfilId recebido
          perfilIdDescrypt = cryp.descriptografar(perfilId);
+          
          if (perfilIdDescrypt == null || perfilIdDescrypt.isEmpty()) {
             return ResponseEntity.badRequest().body("perfilId inválido ou não descriptografado");
-         }
+         } 
+         var user = userRepo.findById(perfilIdDescrypt).get();
+         if(user.getPlanoStatus() == Plano.gigachad){
+          return ResponseEntity.badRequest().body("");
+      }
       } catch (Exception e) {
          return ResponseEntity.badRequest().body("erro ao descriptografar perfilId: " + e.getMessage());
       }
@@ -406,6 +423,80 @@ public ResponseEntity<?> excluirFoto(HttpServletRequest request, @RequestParam S
          return ResponseEntity.badRequest().body("erro no try" + e.getMessage()); 
       }
    }
+   @GetMapping("/getStatusPagamento")
+   public ResponseEntity<?> getStatusPagamento(HttpServletRequest request){
+      try {
+         var email = jwt.getEmail(request);
+         var user = userRepo.findByEmail(email);
+         var status = user.getPlanoStatus();
+         return ResponseEntity.ok().body(status);
+      } catch (Exception e) {
+          return ResponseEntity.badRequest().body("erro no try" + e.getMessage()); 
+      }
+   }
+   @GetMapping("/verCurtidas")
+   public ResponseEntity<?> verCurtidas(HttpServletRequest request) {
+       try{
+         var user = userRepo.findByEmail(jwt.getEmail(request));
+         var status = user.getPlanoStatus();
+         var count = curtidaRepo.countByCurtidoId(user.getId());
+         if(status == null){
+            return ResponseEntity.ok().body("free"+ count);
+         }else{
+            List<Curtida> curtidas = curtidaRepo.findByCurtidoId(user.getId());
+            List<String> ids = new ArrayList<>();
+            for(Curtida i : curtidas){
+               ids.add(i.getCurtidoId());
+            }
+            return ResponseEntity.ok().body(ids);
+         }
+       }catch (Exception e) {
+          return ResponseEntity.badRequest().body("erro no try" + e.getMessage()); 
+      }
+   }
+   
+   @GetMapping("/verSuperlikes")
+   public ResponseEntity<?> verSuperlikes(HttpServletRequest request) {
+       try {
+         var user = userRepo.findByEmail(jwt.getEmail(request));
+         var status = user.getPlanoStatus();
+         // Supondo que existam métodos para superlikes no CurtidaRepository
+         var count = superRepo.countByCurtidoId(user.getId());
+         if (status == null) {
+            return ResponseEntity.ok().body("free" + count);
+         } else {
+            List<SuperLike> superlikes = superRepo.findByCurtidoId(user.getId());
+            List<String> ids = new ArrayList<>();
+            for (Curtida i : superlikes) {
+                ids.add(i.getCurtidoId());
+            }
+            return ResponseEntity.ok().body(ids);
+         }
+       } catch (Exception e) {
+          return ResponseEntity.badRequest().body("erro no try" + e.getMessage()); 
+      }
+   }
+   @GetMapping("/getQuantidadeCurtidas")
+   public ResponseEntity<?> getQuantidadeCurtidas(HttpServletRequest request) {
+       try{
+         var user = userRepo.findByEmail(jwt.getEmail(request));
+         var count = curtidaRepo.countByCurtidoId(user.getId());
+         return ResponseEntity.ok().body(count);
+       }catch(Exception e){
+         return ResponseEntity.badRequest().body("erro no try" + e.getMessage()); 
+       }
+   }
+   @GetMapping("/getQuantidadeSuperLike")
+   public ResponseEntity<?> getQuantidadeSuperLike(HttpServletRequest request) {
+       try{
+         var user = userRepo.findByEmail(jwt.getEmail(request));
+         var count = superRepo.countByCurtidoId(user.getId());
+         return ResponseEntity.ok().body(count);
+       }catch(Exception e){
+         return ResponseEntity.badRequest().body("erro no try" + e.getMessage()); 
+       }
+   }
+   
    
 }
 

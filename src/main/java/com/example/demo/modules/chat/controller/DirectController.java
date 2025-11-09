@@ -51,33 +51,31 @@ public class DirectController{
         }  
     }
     @GetMapping("/getNomeandFoto")
-    public ResponseEntity<?> getNomeandFoto(@RequestParam String userId1, @RequestParam String userId2 , HttpServletRequest request) {
-        try {
-            var email = jwt.getEmail(request);
-            var currentId = cryp.Cryptografar(userRepo.findByEmail(email).getId());
-            if(currentId.equals(userId1)){
-                var idDescrip = cryp.descriptografar(userId2);
-                var user = userRepo.findById(idDescrip);
-                HashMap<String, String> map = new HashMap<>();
-                map.put("nome", user.get().getNome());
-                var foto = user.get().getUrlFotos().get(0);
-                var url = aws.generatPressignedUrl(foto);
-                map.put("foto", url );
-                return ResponseEntity.ok().body(map);
-            }else{
-                var idDescrip = cryp.descriptografar(userId1);
-                var user = userRepo.findById(idDescrip);
-                HashMap<String, String> map = new HashMap<>();
-                map.put("nome", user.get().getNome());
-                var foto = user.get().getUrlFotos().get(0);
-                var url = aws.generatPressignedUrl(foto);
-                map.put("foto", url );
-                return ResponseEntity.ok().body(map);
-            }
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("erro no try"+ e.getMessage());
+public ResponseEntity<?> getNomeandFoto(@RequestParam String userId1, @RequestParam String userId2 , HttpServletRequest request) {
+    try {
+        var email = jwt.getEmail(request);
+        var currentId = cryp.Cryptografar(userRepo.findByEmail(email).getId());
+        String targetId = currentId.equals(userId1) ? userId2 : userId1;
+        var idDescrip = cryp.descriptografar(targetId);
+        var userOpt = userRepo.findById(idDescrip);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Usuário não encontrado.");
         }
+        var user = userOpt.get();
+        HashMap<String, String> map = new HashMap<>();
+        map.put("nome", user.getNome());
+        var fotos = user.getUrlFotos();
+        if (fotos == null || fotos.isEmpty()) {
+            map.put("foto", ""); // Ou coloque uma URL padrão
+        } else {
+            var url = aws.generatPressignedUrl(fotos.get(0));
+            map.put("foto", url );
+        }
+        return ResponseEntity.ok().body(map);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body("erro no try"+ e.getMessage());
     }
+}
     @GetMapping("/getHistorico")
     public ResponseEntity<?> getHistorico(@RequestParam String pessoa1Id,@RequestParam String pessoa2Id ){
         try{

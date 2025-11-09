@@ -2,7 +2,6 @@ package com.example.demo.modules.explorar;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -45,7 +44,7 @@ public class ExplorarController {
             int limit = Math.min(10, usersByCidade.size());
             for(int i = 0; i< limit; i++){
                 if(IdsVisualizados.contains(usersByCidade.get(i).getId())){
-                    continue;
+                  
                 }else{
                     listaDeIds.add(cryp.Cryptografar(usersByCidade.get(i).getId()));
                 }
@@ -74,7 +73,7 @@ public class ExplorarController {
             int limit  = Math.min(10, userGosto.size());
             for(int i = 0; i< limit; i++){
                 if(idsVisualizados.contains(userGosto.get(i).getId())){
-                    continue;
+                    
                 }else{
                     listaIds.add(cryp.Cryptografar(userGosto.get(i).getId()));
                 }
@@ -105,7 +104,7 @@ public class ExplorarController {
             int limit = Math.min(10, usersByProfissão.size());
             for(int i = 0; i < limit; i++){
                 if(IdsVisualizados.contains(usersByProfissão.get(i).getId())){
-                    continue;
+                    
                 }else{
                     listaIds.add(cryp.Cryptografar(usersByProfissão.get(i).getId()));
                 }

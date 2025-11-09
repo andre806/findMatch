@@ -34,6 +34,11 @@ public class User {
     private String ocupacao;
     private String educacao;
     private String urlFotoPerfil; 
-    private boolean premium;
+    private Plano planoStatus;
     private Set<String> perfisVisualizados;
+    private Integer quantidadeCurtidasDiaria;
+    private Integer quantidadeSuperLikesDiario;
+    private Integer quantidadeChats;
+    
 }
+

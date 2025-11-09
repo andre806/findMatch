@@ -1,7 +1,7 @@
 package com.example.demo.modules.chat.controller;
 
 import java.time.Instant;
-import java.util.ArrayList;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -14,8 +14,7 @@ import com.example.demo.modules.chat.Repository.ChatRepository;
 import com.example.demo.modules.chat.models.Chat;
 import com.example.demo.modules.chat.models.Mensagem;
 
-import java.util.List;
-import java.time.LocalDateTime;
+
 
 import com.example.demo.modules.chat.Repository.MensagemRepository;
 import com.example.demo.modules.chat.models.Msg;
