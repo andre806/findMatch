@@ -2,12 +2,17 @@ import { useEffect, useState, useRef } from "react";
 import MiniaturaPerfil from "./Miniatura";
 import CurtirBtn from "./CurtirBtn";
 import SkipBtn from "./SkipBtn";
+import RewindBtn from "./rewindBtn";
+import SuperLikeBtn from "./SuperLikeBtn";
+import IniciarChatBtn from "./IniciarChatBtn";
+
 export default function Fy() {
     const [usersId, setUsersIds] = useState([]);
     const [noMoreProfiles, setNoMoreProfiles] = useState(false);
     const [currentIdx, setCurrentIdx] = useState(0);
     const [animDirection, setAnimDirection] = useState(""); // "right" ou "left"
     const url = process.env.NEXT_PUBLIC_URL;
+    const [rewind, setRewind] = useState("");
 
     // Drag state
     const [dragX, setDragX] = useState(0);
@@ -63,24 +68,24 @@ export default function Fy() {
     }
 
     // Função para curtir (usada no drag e no botão)
-    // async function curtirPerfil(userId) {
-    //     await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
-    //         method: "POST",
-    //         credentials: "include",
-    //         headers: {
-    //             "Content-Type": "application/json"
-    //         },
-    //         body: JSON.stringify({ id: userId })
-    //     });
-    // }
+    async function curtirPerfil(userId) {
+        await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+    }
+
+    const [previousProfile, setPreviousProfile] = useState(null);
 
     function handleNext(direction = "", doLike = false) {
         setAnimDirection(direction);
         setDragX(0);
         setTimeout(async () => {
-            if (doLike && usersId[currentIdx]) {
-                await curtirPerfil(usersId[currentIdx]);
-            }
+            // Salva o id do perfil anterior
+            setPreviousProfile(usersId[currentIdx]);
             const nextIdx = getNextValidIdx(currentIdx);
             if (nextIdx === -1) {
                 // Array foi totalmente percorrido, buscar mais perfis
@@ -90,6 +95,16 @@ export default function Fy() {
             }
             setAnimDirection("");
         }, 350); // tempo da animação
+    }
+
+    // Função para voltar ao perfil anterior
+    function handleRewind() {
+        if (previousProfile) {
+            const prevIdx = usersId.findIndex(id => id === previousProfile);
+            if (prevIdx !== -1) {
+                setCurrentIdx(prevIdx);
+            }
+        }
     }
 
     // Drag handlers
@@ -135,9 +150,11 @@ export default function Fy() {
                 ? "translateX(120vw) rotate(20deg)"
                 : animDirection === "left"
                     ? "translateX(-120vw) rotate(-20deg)"
-                    : dragX !== 0
-                        ? `translateX(${dragX}px) rotate(${dragX / 18}deg)`
-                        : "translateX(0)",
+                    : animDirection === "up"
+                        ? "translateY(-120vh) scale(1.2)"
+                        : dragX !== 0
+                            ? `translateX(${dragX}px) rotate(${dragX / 18}deg)`
+                            : "translateX(0)",
         opacity: animDirection ? 0 : 1,
         cursor: dragX !== 0 ? "grabbing" : "grab",
         touchAction: "pan-y"
@@ -159,7 +176,10 @@ export default function Fy() {
                     <MiniaturaPerfil id={currentUser} />
                     <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 16 }}>
                         <SkipBtn onSkip={() => handleNext("left", false)} />
+                        <SuperLikeBtn perfilId={currentUser} onSuperLike={() => handleNext("up")} />
                         <CurtirBtn userId={currentUser} onLike={() => handleNext("right", true)} />
+                        <RewindBtn onRewind={handleRewind} />
+                        <IniciarChatBtn pessoa2={currentUser} />
                     </div>
                 </div>
             ) : noMoreProfiles ? (

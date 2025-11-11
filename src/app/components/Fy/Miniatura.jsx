@@ -53,18 +53,18 @@ export default function MiniaturaPerfil({ id }) {
         }
         if (id) FetchData();
     }, [id, url])
-    // useEffect(() => {
-    //     async function visualizar() {
-    //         // Usa o id exatamente como recebido
-    //         // eslint-disable-next-line no-console
-    //         console.log("visualizar perfilId:", id);
-    //         await fetch(`${url}User/visualizarPerfil?perfilId=${encodeURIComponent(id)}`, {
-    //             method: "POST",
-    //             credentials: "include"
-    //         })
-    //     }
-    //     if (id) visualizar();
-    // }, [id, url])
+    useEffect(() => {
+        async function visualizar() {
+            // Usa o id exatamente como recebido
+            // eslint-disable-next-line no-console
+            console.log("visualizar perfilId:", id);
+            await fetch(`${url}User/visualizarPerfil?perfilId=${encodeURIComponent(id)}`, {
+                method: "POST",
+                credentials: "include"
+            })
+        }
+        if (id) visualizar();
+    }, [id, url])
     // Interação dos botões
     function handleSkip() {
         setData(null);

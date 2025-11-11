@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -8,6 +8,9 @@ import TextField from "@mui/material/TextField";
 import MiniaturaPerfil from "../Fy/Miniatura";
 import CurtirBtn from "../Fy/CurtirBtn";
 import SkipBtn from "../Fy/SkipBtn";
+import SuperLikeBtn from "../Fy/SuperLikeBtn";
+import RewindBtn from "../Fy/rewindBtn";
+import IniciarChatBtn from "../Fy/IniciarChatBtn";
 import profissoesJson from "@/app/json/profissoes.json";
 
 export default function ExplorarProfissoes() {
@@ -17,9 +20,6 @@ export default function ExplorarProfissoes() {
     const [currentIdx, setCurrentIdx] = useState(0);
     const [noMoreProfiles, setNoMoreProfiles] = useState(false);
     const [animDirection, setAnimDirection] = useState("");
-    const [dragX, setDragX] = useState(0);
-    const dragStartX = useRef(null);
-    const dragging = useRef(false);
     const url = process.env.NEXT_PUBLIC_URL;
     const PROFISSOES_LIST = Array.isArray(profissoesJson)
         ? profissoesJson
@@ -56,16 +56,57 @@ export default function ExplorarProfissoes() {
         return -1;
     }
 
-    // async function curtirPerfil(userId) {
-    //     await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
-    //         method: "POST",
-    //         credentials: "include",
-    //         headers: {
-    //             "Content-Type": "application/json"
-    //         },
-    //         body: JSON.stringify({ id: userId })
-    //     });
-    // }
+    // Função para curtir (usada no drag e no botão)
+    async function curtirPerfil(userId) {
+        await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+    }
+
+    // Função para superlike
+    async function superLikePerfil(userId) {
+        await fetch(`${url}Relacionamento/superlike?perfilId=${userId}`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+    }
+
+    const [previousProfile, setPreviousProfile] = useState(null);
+
+    function handleNext(direction = "", doLike = false, doSuperLike = false) {
+        setAnimDirection(direction);
+        setTimeout(async () => {
+            setPreviousProfile(ids[currentIdx]);
+            if (doSuperLike && ids[currentIdx]) {
+                await superLikePerfil(ids[currentIdx]);
+            } else if (doLike && ids[currentIdx]) {
+                await curtirPerfil(ids[currentIdx]);
+            }
+            const nextIdx = getNextValidIdx(currentIdx);
+            if (nextIdx === -1) {
+                await buscarMaisPerfis();
+            } else {
+                setCurrentIdx(nextIdx);
+            }
+            setAnimDirection("");
+        }, 350);
+    }
+
+    function handleRewind() {
+        if (previousProfile) {
+            const prevIdx = ids.findIndex(id => id === previousProfile);
+            if (prevIdx !== -1) {
+                setCurrentIdx(prevIdx);
+            }
+        }
+    }
 
     async function buscarMaisPerfis() {
         const db = await fetch(`${url}explorar/explorarprofissoes?profissao=${encodeURIComponent(profissao)}`, {
@@ -82,69 +123,20 @@ export default function ExplorarProfissoes() {
         }
     }
 
-    function handleNext(direction = "", doLike = false) {
-        setAnimDirection(direction);
-        setDragX(0);
-        setTimeout(async () => {
-            if (doLike && ids[currentIdx]) {
-                await curtirPerfil(ids[currentIdx]);
-            }
-            const nextIdx = getNextValidIdx(currentIdx);
-            if (nextIdx === -1) {
-                await buscarMaisPerfis();
-            } else {
-                setCurrentIdx(nextIdx);
-            }
-            setAnimDirection("");
-        }, 350);
-    }
-
-    // Drag handlers
-    function onDragStart(e) {
-        dragging.current = true;
-        setDragX(0);
-        dragStartX.current = e.type === "touchstart"
-            ? e.touches[0].clientX
-            : e.clientX;
-    }
-
-    function onDragMove(e) {
-        if (!dragging.current) return;
-        const clientX = e.type === "touchmove"
-            ? e.touches[0].clientX
-            : e.clientX;
-        setDragX(clientX - dragStartX.current);
-    }
-
-    function onDragEnd() {
-        dragging.current = false;
-        if (dragX > 100) {
-            handleNext("right", true);
-        } else if (dragX < -100) {
-            handleNext("left", false);
-        } else {
-            setDragX(0);
-        }
-    }
-
     const currentUser = ids[currentIdx];
 
     const animStyles = {
         transition: animDirection
             ? "transform 0.35s cubic-bezier(.4,2,.6,1), opacity 0.35s"
-            : dragX !== 0
-                ? "none"
-                : "transform 0.2s",
+            : "transform 0.2s",
         transform:
             animDirection === "right"
                 ? "translateX(120vw) rotate(20deg)"
                 : animDirection === "left"
                     ? "translateX(-120vw) rotate(-20deg)"
-                    : dragX !== 0
-                        ? `translateX(${dragX}px) rotate(${dragX / 18}deg)`
-                        : "translateX(0)",
+                    : "translateX(0)",
         opacity: animDirection ? 0 : 1,
-        cursor: dragX !== 0 ? "grabbing" : "grab",
+        cursor: "grab",
         touchAction: "pan-y"
     };
 
@@ -258,13 +250,6 @@ export default function ExplorarProfissoes() {
                             alignItems: "flex-start",
                             top: "-32px"
                         }}
-                        onMouseDown={onDragStart}
-                        onMouseMove={dragging.current ? onDragMove : undefined}
-                        onMouseUp={onDragEnd}
-                        onMouseLeave={dragging.current ? onDragEnd : undefined}
-                        onTouchStart={onDragStart}
-                        onTouchMove={onDragMove}
-                        onTouchEnd={onDragEnd}
                     >
                         {/* Miniatura mais acima e à esquerda */}
                         <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 0, mb: 1, width: "100%" }}>
@@ -281,7 +266,10 @@ export default function ExplorarProfissoes() {
                             }}
                         >
                             <SkipBtn onSkip={() => handleNext("left", false)} />
+                            <SuperLikeBtn perfilId={currentUser} onSuperLike={() => handleNext("up", false, true)} />
                             <CurtirBtn userId={currentUser} onLike={() => handleNext("right", true)} />
+                            <RewindBtn onRewind={handleRewind} />
+                            <IniciarChatBtn pessoa2={currentUser} />
                         </Box>
                     </div>
                 ) : noMoreProfiles && profissao ? (

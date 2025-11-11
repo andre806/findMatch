@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link";
+import GetCurtidos from "../Fy/getCurtidos";
+import GetSuperLikes from "../Fy/getSuperLike";
 
 export default function Directs() {
     const [directs, setDirects] = useState([]);
@@ -40,6 +42,8 @@ export default function Directs() {
 
     return (
         <div>
+            <GetSuperLikes></GetSuperLikes>
+            <GetCurtidos></GetCurtidos>
             {directs.map((d) => {
                 const key = `${d.pessoa1Id}-${d.pessoa2Id}`;
                 const data = usersData[key];
