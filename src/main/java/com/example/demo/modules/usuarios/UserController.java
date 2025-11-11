@@ -50,6 +50,7 @@ import com.example.demo.services.Cryp;
 import com.example.demo.modules.relacionamentos.CurtidaRepository;
 import com.example.demo.modules.relacionamentos.SuperLike;
 import com.example.demo.modules.relacionamentos.SuperLikeRepository;
+import com.example.demo.modules.relacionamentos.MatchRepository;
 @RestController
 @RequestMapping("/User")
 public class UserController {
@@ -61,6 +62,8 @@ public class UserController {
     CurtidaRepository curtidaRepo;
     @Autowired
     SuperLikeRepository superRepo;
+    @Autowired
+    MatchRepository matchRepo;
     public UserController(UserRepository userRepo, Jwt jwt,AWS aws, Cryp cryp){
         this.userRepo = userRepo;
         this.jwt = jwt;
@@ -396,11 +399,13 @@ public ResponseEntity<?> excluirFoto(HttpServletRequest request, @RequestParam S
             return ResponseEntity.badRequest().body("usuario logado não encontrado");
          }
 
-         // Adiciona o perfil visualizado se ainda não estiver na lista
+         // Inicializa o conjunto se estiver null ou vazio
          Set<String> arr = userLogado.getPerfisVisualizados();
-         if (arr == null) {
+         if (arr == null || arr.isEmpty()) {
             arr = new HashSet<>();
+            userLogado.setPerfisVisualizados(arr);
          }
+         
          if (!arr.contains(perfilIdDescrypt)) {
             arr.add(perfilIdDescrypt);
             userLogado.setPerfisVisualizados(arr);
@@ -439,14 +444,14 @@ public ResponseEntity<?> excluirFoto(HttpServletRequest request, @RequestParam S
        try{
          var user = userRepo.findByEmail(jwt.getEmail(request));
          var status = user.getPlanoStatus();
-         var count = curtidaRepo.countByCurtidoId(user.getId());
+      
          if(status == null){
-            return ResponseEntity.ok().body("free"+ count);
+            return ResponseEntity.ok().body(false);
          }else{
             List<Curtida> curtidas = curtidaRepo.findByCurtidoId(user.getId());
             List<String> ids = new ArrayList<>();
             for(Curtida i : curtidas){
-               ids.add(i.getCurtidoId());
+               ids.add(cryp.Cryptografar(i.getCurtidoId()));
             }
             return ResponseEntity.ok().body(ids);
          }
@@ -460,15 +465,14 @@ public ResponseEntity<?> excluirFoto(HttpServletRequest request, @RequestParam S
        try {
          var user = userRepo.findByEmail(jwt.getEmail(request));
          var status = user.getPlanoStatus();
-         // Supondo que existam métodos para superlikes no CurtidaRepository
-         var count = superRepo.countByCurtidoId(user.getId());
+         
          if (status == null) {
-            return ResponseEntity.ok().body("free" + count);
+            return ResponseEntity.ok().body(false);
          } else {
             List<SuperLike> superlikes = superRepo.findByCurtidoId(user.getId());
             List<String> ids = new ArrayList<>();
             for (Curtida i : superlikes) {
-                ids.add(i.getCurtidoId());
+                ids.add(cryp.Cryptografar(i.getCurtidoId()));
             }
             return ResponseEntity.ok().body(ids);
          }
@@ -491,6 +495,16 @@ public ResponseEntity<?> excluirFoto(HttpServletRequest request, @RequestParam S
        try{
          var user = userRepo.findByEmail(jwt.getEmail(request));
          var count = superRepo.countByCurtidoId(user.getId());
+         return ResponseEntity.ok().body(count);
+       }catch(Exception e){
+         return ResponseEntity.badRequest().body("erro no try" + e.getMessage()); 
+       }
+   }
+   @GetMapping("/getQuantidadeMatch")
+   public ResponseEntity<?> getQuantidadeMatch(HttpServletRequest request) {
+       try{
+         var user = userRepo.findByEmail(jwt.getEmail(request));
+         var count = matchRepo.countByUser1OrUser2(user.getId());
          return ResponseEntity.ok().body(count);
        }catch(Exception e){
          return ResponseEntity.badRequest().body("erro no try" + e.getMessage()); 

@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.demo.modules.relacionamentos.services.ChatLimitedService;
+import com.example.demo.modules.relacionamentos.services.RewindService;
 
 
 @RestController
@@ -40,6 +41,8 @@ public class RelacionamentoController {
     private SuperLikeLimitedService superLikeService;
     @Autowired
     private ChatLimitedService chatLimited;
+    @Autowired
+    RewindService rewindService;
 
 
 
@@ -73,15 +76,21 @@ public class RelacionamentoController {
             // Descriptografa os IDs antes de usar
             String decryptedPerfilId = cryp.descriptografar(perfilId);
             Curtida entity = new Curtida(quemCurteId, decryptedPerfilId);
-          if(user.getPlanoStatus() == null){
             if(curtidaLimited.podeCurtir(quemCurteId, request) == false){
                 return ResponseEntity.ok().body("limite de curtidas excedido");
            }
-           curtidaLimited.registrarCurtida(user);
-          }
+          
 
             // Salva a curtida antes de verificar
             curtidaRepo.save(entity);
+            
+            // Registra a curtida para contagem (sempre que não tem plano)
+            try {
+                curtidaLimited.registrarCurtida(user);
+            } catch (Exception e) {
+                 return ResponseEntity.ok().body("erro no try"+ e.getMessage());
+            }
+            
             
             // Agora verifica se há reciprocidade e se já curtiu (após salvar)
             boolean jaCurtiu = curtidaRepo.existsByCurtidoIdAndQuemCurteId(quemCurteId, decryptedPerfilId);
@@ -129,7 +138,7 @@ public class RelacionamentoController {
        try{
         var user = userRepo.findByEmail(jwt.getEmail(request));
         if(chatLimited.podeChat(user)){
-            Chat chat = new Chat(user.getId(), pessoa2);
+            Chat chat = new Chat(cryp.Cryptografar(user.getId()), pessoa2);
             chatRepo.save(chat);
             chatLimited.registrarChat(user);
             return ResponseEntity.ok().body("chat iniciado");
@@ -140,4 +149,19 @@ public class RelacionamentoController {
          return ResponseEntity.ok().body("erro no try"+ e.getMessage());
        }
     }
+    @PostMapping("/rewind")
+    public ResponseEntity<?> rewind(HttpServletRequest request) {
+        try{
+            boolean pode = rewindService.podeRewind(request);
+            if(pode){
+                rewindService.RegistrarRewind(request);
+                return ResponseEntity.ok().body("");
+            }else{
+                return ResponseEntity.ok().body("atualiza seu plano para poder executar rewinds");
+            }
+        }catch(Exception e){
+             return ResponseEntity.ok().body("erro no try"+ e.getMessage()); 
+        }
+    }
+    
 }

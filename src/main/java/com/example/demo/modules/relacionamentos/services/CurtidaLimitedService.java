@@ -1,8 +1,10 @@
 package com.example.demo.modules.relacionamentos.services;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
 import com.example.demo.modules.usuarios.User;
 import com.example.demo.modules.usuarios.UserRepository;
@@ -10,7 +12,7 @@ import com.example.demo.services.Jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-
+@Service
 public class CurtidaLimitedService {
     @Autowired
     UserRepository userRepo;
@@ -25,15 +27,17 @@ public class CurtidaLimitedService {
             // Ajuste conforme o tipo do plano, ex: user.getPlanoStatus().isPremium()
             return true; // Tem plano, curtidas infinitas
         }
-        return user.getQuantidadeCurtidasDiaria() < LIMITE;
+        Integer quantidadeCurtidas = user.getQuantidadeCurtidasDiaria();
+        if (quantidadeCurtidas == null) {
+            quantidadeCurtidas = 0;
+        }
+        return quantidadeCurtidas < LIMITE;
     }
 
      public void registrarCurtida(User user) {
-        if (user.getPlanoStatus() == null) {
             int atual = user.getQuantidadeCurtidasDiaria() == null ? 0 : user.getQuantidadeCurtidasDiaria();
             user.setQuantidadeCurtidasDiaria(atual + 1);
             userRepo.save(user);
-        }
         // Se tem plano, não precisa registrar
     }
 
@@ -41,10 +45,10 @@ public class CurtidaLimitedService {
     public void resetarCurtidas() {
         List<User> users = userRepo.findAll();
         for(User i : users){
-            if(i.getPlanoStatus() == null){
+           
                  i.setQuantidadeCurtidasDiaria(0);
                  userRepo.save(i);
-            }
+            
         }
     }
 }

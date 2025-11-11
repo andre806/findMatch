@@ -39,6 +39,8 @@ public class User {
     private Integer quantidadeCurtidasDiaria;
     private Integer quantidadeSuperLikesDiario;
     private Integer quantidadeChats;
+    private Integer quantidadeRewind;
+    private Integer TimePlano;
     
 }
 
