@@ -38,23 +38,7 @@ export default function Header() {
                         flexGrow: 1,
                         justifyContent: { xs: "center", sm: "flex-start" }
                     }}>
-                        <img src="/logo.png" alt="GothicMatch" style={{
-                            height: 32,
-                            marginRight: 10
-                        }} />
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                fontWeight: 900,
-                                letterSpacing: 1,
-                                background: "linear-gradient(90deg,#ff66cc,#9933ff)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                fontSize: { xs: 18, sm: 22 }
-                            }}
-                        >
-                            GothicMatch
-                        </Typography>
+                        {/* Logo removida */}
                     </Box>
                     {/* Menus - Drawer no mobile */}
                     <Box sx={{

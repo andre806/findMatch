@@ -1,6 +1,8 @@
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useState } from 'react';
 import { RadioGroup, FormControlLabel, Radio, Card, CardContent, Typography, Button, Box } from '@mui/material';
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
 
 const plans = [
     {
@@ -53,29 +55,41 @@ export default function PaymentForm() {
     const elements = useElements();
     const stripe = useStripe();
     const [selectedPlan, setSelectedPlan] = useState('premium');
+    const [errorMsg, setErrorMsg] = useState("");
+    const [successMsg, setSuccessMsg] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const element = elements.getElement(CardElement);
-        const result = await stripe.createToken(element);
-        if (result.error) {
-            alert(result.error.message);
-            return;
+        setErrorMsg("");
+        setSuccessMsg("");
+        try {
+            const element = elements.getElement(CardElement);
+            const result = await stripe.createToken(element);
+            if (result.error) {
+                setErrorMsg(result.error.message);
+                return;
+            }
+            if (!result.token) {
+                setErrorMsg("Token não gerado. Verifique os dados do cartão.");
+                return;
+            }
+            const planObj = plans.find(p => p.key === selectedPlan);
+            const res = await fetch(`${url}payment/pagar`, {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ token: result.token.id, amount: planObj.price }),
+                credentials: "include"
+            });
+            const data = await res.text();
+            if (!res.ok) {
+                setErrorMsg(data || "Erro ao processar pagamento.");
+                return;
+            }
+            setSuccessMsg("Pagamento realizado com sucesso! ID: " + data);
+        } catch (err) {
+            setErrorMsg("Erro inesperado: " + (err?.message || "Tente novamente."));
         }
-        if (!result.token) {
-            alert("Token não gerado. Verifique os dados do cartão.");
-            return;
-        }
-        const planObj = plans.find(p => p.key === selectedPlan);
-        const res = await fetch(`${url}payment/pagar`, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ token: result.token.id, amount: planObj.price }),
-            credentials: "include"
-        })
-        const data = await res.json();
-        alert(data)
-    }
+    };
 
     return (
         <Box
@@ -171,6 +185,28 @@ export default function PaymentForm() {
                     >
                         Pagar {plans.find(p => p.key === selectedPlan).priceText}
                     </Button>
+                    {/* Snackbar para erro */}
+                    <Snackbar
+                        open={!!errorMsg}
+                        autoHideDuration={4000}
+                        onClose={() => setErrorMsg("")}
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                    >
+                        <Alert severity="error" sx={{ width: "100%" }} onClose={() => setErrorMsg("")}>
+                            {errorMsg}
+                        </Alert>
+                    </Snackbar>
+                    {/* Snackbar para sucesso */}
+                    <Snackbar
+                        open={!!successMsg}
+                        autoHideDuration={4000}
+                        onClose={() => setSuccessMsg("")}
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                    >
+                        <Alert severity="success" sx={{ width: "100%" }} onClose={() => setSuccessMsg("")}>
+                            {successMsg}
+                        </Alert>
+                    </Snackbar>
                 </form>
             </Box>
         </Box>

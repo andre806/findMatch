@@ -167,7 +167,7 @@ export default function ExplorarCidades() {
                 sx={{
                     position: { xs: "static", sm: "fixed" },
                     left: 10,
-                    top: 20,
+                    top: 75,
                     minWidth: 220,
                     maxHeight: "90vh",
                     overflowY: "auto",

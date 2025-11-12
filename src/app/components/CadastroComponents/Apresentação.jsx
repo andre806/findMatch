@@ -1,4 +1,4 @@
-import { Container, Typography, Box, Paper, Button, Link } from '@mui/material';
+import { Container, Typography, Box, Paper, Button } from '@mui/material';
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from 'react';
 import { SessionProvider } from 'next-auth/react';
@@ -179,24 +179,6 @@ function Apresentacao() {
                         >
                             Entrar com Google
                         </Button>
-
-                        <Box mt={2}>
-                            <Typography variant="body2" sx={{ color: '#bdbdbd', display: 'inline' }}>
-                                Já tem uma conta?{' '}
-                            </Typography>
-                            <Link
-                                href="/login"
-                                underline="hover"
-                                sx={{
-                                    color: '#ce93d8',
-                                    fontWeight: 500,
-                                    transition: 'color 0.2s',
-                                    '&:hover': { color: '#fff' }
-                                }}
-                            >
-                                Faça login
-                            </Link>
-                        </Box>
                     </Box>
                 </Paper>
             </Container>
@@ -207,8 +189,8 @@ function Apresentacao() {
 
 export default function Apresentação() {
     return (
-       < SessionProvider>
-        <Apresentacao />
+        < SessionProvider>
+            <Apresentacao />
         </SessionProvider>
     )
 }

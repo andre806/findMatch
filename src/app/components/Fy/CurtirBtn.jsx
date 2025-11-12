@@ -1,16 +1,22 @@
 import IconButton from "@mui/material/IconButton";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useState } from "react";
 
 export default function CurtirBtn({ userId, onLike }) {
     const url = process.env.NEXT_PUBLIC_URL;
+    const[resposta, setRepostas] = useState();
+
     async function curtir(e) {
-        await fetch(`${url}Relacionamento/curtir?perfilId=${encodeURIComponent(userId)}`, {
+       const db =  await fetch(`${url}Relacionamento/curtir?perfilId=${encodeURIComponent(userId)}`, {
             method: "POST",
             credentials: "include",
             headers: {
                 "Content-Type": "application/json"
             }
+            
         });
+        const res = await db.json();
+        setRepostas(res);
         if (onLike) onLike();
     }
     return (
