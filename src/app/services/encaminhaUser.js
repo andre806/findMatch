@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useState } from "react";
 import { getEmail } from "./getEmail";
 import { useRouter } from "next/navigation";
