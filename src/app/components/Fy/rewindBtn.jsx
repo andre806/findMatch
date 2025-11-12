@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import IconButton from "@mui/material/IconButton";
+import ReplayIcon from "@mui/icons-material/Replay";
 
 export default function RewindBtn({ onRewind }) {
-    const [scale, setScale] = useState(1);
     const url = process.env.NEXT_PUBLIC_URL;
 
     async function rewind(e) {
@@ -14,23 +14,27 @@ export default function RewindBtn({ onRewind }) {
     }
 
     return (
-        <button
+        <IconButton
             onClick={rewind}
-            style={{
-                background: "#f5c542",
-                borderRadius: 8,
-                padding: "8px 16px",
-                border: "none",
-                cursor: "pointer",
-                transition: "transform 0.60s cubic-bezier(.4,2,.6,1)",
-                transform: `scale(${scale})`
+            sx={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg,#9933ff 0%,#e0c3fc 100%)",
+                boxShadow: "0 4px 16px #9933ff33",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#9933ff",
+                fontSize: 38,
+                transition: "transform 0.2s",
+                "&:hover": {
+                    transform: "scale(1.12)",
+                    background: "linear-gradient(135deg,#a855f7 0%,#e0c3fc 100%)"
+                }
             }}
-            onMouseDown={e => { setScale(1.15); e.stopPropagation(); }}
-            onMouseUp={e => { setScale(1); e.stopPropagation(); }}
-            onMouseLeave={() => setScale(1)}
-            onMouseEnter={() => setScale(1.1)}
         >
-            Rewind
-        </button>
+            <ReplayIcon sx={{ fontSize: 38 }} />
+        </IconButton>
     );
 }

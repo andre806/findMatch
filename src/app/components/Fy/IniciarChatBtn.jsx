@@ -1,3 +1,5 @@
+import Button from "@mui/material/Button";
+
 export default function IniciarChatBtn({ pessoa2 }) {
     const url = process.env.NEXT_PUBLIC_URL;
     async function iniciarChat() {
@@ -7,10 +9,22 @@ export default function IniciarChatBtn({ pessoa2 }) {
         });
     }
     return (
-        <div>
-            <button onClick={iniciarChat}>
-                iniciar chat
-            </button>
-        </div>
+        <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{
+                fontSize: 32,
+                width: 72,
+                height: 72,
+                borderRadius: "50%",
+                minWidth: 0,
+                boxShadow: 3,
+                textTransform: "none"
+            }}
+            onClick={iniciarChat}
+        >
+            💬
+        </Button>
     );
 }

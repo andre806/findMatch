@@ -1,23 +1,22 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import MiniaturaPerfil from "./Miniatura";
 import CurtirBtn from "./CurtirBtn";
 import SkipBtn from "./SkipBtn";
 import RewindBtn from "./rewindBtn";
 import SuperLikeBtn from "./SuperLikeBtn";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Fade from "@mui/material/Fade";
+import { motion, AnimatePresence } from "framer-motion";
 import IniciarChatBtn from "./IniciarChatBtn";
 
 export default function Fy() {
     const [usersId, setUsersIds] = useState([]);
     const [noMoreProfiles, setNoMoreProfiles] = useState(false);
     const [currentIdx, setCurrentIdx] = useState(0);
-    const [animDirection, setAnimDirection] = useState(""); // "right" ou "left"
+    const [animDirection, setAnimDirection] = useState("");
     const url = process.env.NEXT_PUBLIC_URL;
-    const [rewind, setRewind] = useState("");
-
-    // Drag state
-    const [dragX, setDragX] = useState(0);
-    const dragStartX = useRef(null);
-    const dragging = useRef(false);
+    const [previousProfile, setPreviousProfile] = useState(null);
 
     async function BuscarMais() {
         const db = await fetch(`${url}feed/Fy`, {
@@ -27,7 +26,6 @@ export default function Fy() {
         const res = await db.json();
         setUsersIds(res);
         setCurrentIdx(0);
-        // Se não houver perfis válidos, exibe mensagem
         if (!res || res.filter(p => p != null).length === 0) {
             setNoMoreProfiles(true);
         } else {
@@ -53,7 +51,6 @@ export default function Fy() {
         FetchIds();
     }, [url]);
 
-    // Busca automática se houver algum null
     useEffect(() => {
         if (usersId.some(p => p == null) && !noMoreProfiles) {
             BuscarMais();
@@ -67,124 +64,175 @@ export default function Fy() {
         return -1;
     }
 
-    // Função para curtir (usada no drag e no botão)
-    async function curtirPerfil(userId) {
-        await fetch(`${url}Relacionamento/curtir?perfilId=${userId}`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
+    // Animation variants for card (efeito de queda para direita/esquerda)
+    const cardVariants = {
+        initial: { x: 0, y: 0, rotate: 0, opacity: 1 },
+        skip: {
+            x: -200,
+            y: 400,
+            rotate: -35,
+            opacity: 0,
+            transition: { duration: 0.5, ease: "easeIn" }
+        },
+        like: {
+            x: 200,
+            y: 400,
+            rotate: 35,
+            opacity: 0,
+            transition: { duration: 0.5, ease: "easeIn" }
+        },
+        superlike: { y: -600, opacity: 0, transition: { duration: 0.4 } },
+        rewind: {
+            rotateY: [0, 90, 0],
+            opacity: [1, 0, 1],
+            transition: { duration: 0.5 }
+        },
+        reset: { x: 0, y: 0, rotate: 1, rotateY: 0, opacity: 1, transition: { duration: 0.2 } }
+    };
+
+    // Helper to get animation key
+    function getAnimKey() {
+        if (animDirection === "left") return "skip";
+        if (animDirection === "right") return "like";
+        if (animDirection === "up") return "superlike";
+        if (animDirection === "rewind") return "rewind";
+        return "initial";
     }
 
-    const [previousProfile, setPreviousProfile] = useState(null);
-
-    function handleNext(direction = "", doLike = false) {
+    function handleNext(direction = "", doLike = false, doSuperLike = false) {
         setAnimDirection(direction);
-        setDragX(0);
         setTimeout(async () => {
-            // Salva o id do perfil anterior
             setPreviousProfile(usersId[currentIdx]);
             const nextIdx = getNextValidIdx(currentIdx);
             if (nextIdx === -1) {
-                // Array foi totalmente percorrido, buscar mais perfis
                 await BuscarMais();
             } else {
                 setCurrentIdx(nextIdx);
             }
             setAnimDirection("");
-        }, 350); // tempo da animação
+        }, 400);
     }
 
-    // Função para voltar ao perfil anterior
     function handleRewind() {
-        if (previousProfile) {
-            const prevIdx = usersId.findIndex(id => id === previousProfile);
-            if (prevIdx !== -1) {
-                setCurrentIdx(prevIdx);
+        setAnimDirection("rewind");
+        setTimeout(() => {
+            if (previousProfile) {
+                const prevIdx = usersId.findIndex(id => id === previousProfile);
+                if (prevIdx !== -1) {
+                    setCurrentIdx(prevIdx);
+                }
             }
-        }
+            setAnimDirection("");
+        }, 500);
     }
 
-    // Drag handlers
-    function onDragStart(e) {
-        dragging.current = true;
-        setDragX(0);
-        dragStartX.current = e.type === "touchstart"
-            ? e.touches[0].clientX
-            : e.clientX;
-    }
-
-    function onDragMove(e) {
-        if (!dragging.current) return;
-        const clientX = e.type === "touchmove"
-            ? e.touches[0].clientX
-            : e.clientX;
-        setDragX(clientX - dragStartX.current);
-    }
-
-    function onDragEnd() {
-        dragging.current = false;
-        if (dragX > 100) {
-            handleNext("right", true); // direita = curtir
-        } else if (dragX < -100) {
-            handleNext("left", false); // esquerda = skip
-        } else {
-            setDragX(0);
-        }
-    }
-
-    // Busca o próximo usuário válido a partir do índice atual
     const currentUser = usersId[currentIdx];
+    // Dados do perfil atual
+    const [profileData, setProfileData] = useState(null);
 
-    // Estilos de animação
-    const animStyles = {
-        transition: animDirection
-            ? "transform 0.35s cubic-bezier(.4,2,.6,1), opacity 0.35s"
-            : dragX !== 0
-                ? "none"
-                : "transform 0.2s",
-        transform:
-            animDirection === "right"
-                ? "translateX(120vw) rotate(20deg)"
-                : animDirection === "left"
-                    ? "translateX(-120vw) rotate(-20deg)"
-                    : animDirection === "up"
-                        ? "translateY(-120vh) scale(1.2)"
-                        : dragX !== 0
-                            ? `translateX(${dragX}px) rotate(${dragX / 18}deg)`
-                            : "translateX(0)",
-        opacity: animDirection ? 0 : 1,
-        cursor: dragX !== 0 ? "grabbing" : "grab",
-        touchAction: "pan-y"
-    };
+    useEffect(() => {
+        async function FetchProfileData() {
+            if (!currentUser) {
+                setProfileData(null);
+                return;
+            }
+            const db = await fetch(`${url}User/Miniatura?userId=${encodeURIComponent(currentUser)}`, {
+                method: "GET"
+            });
+            const res = await db.json();
+            setProfileData(res);
+        }
+        FetchProfileData();
+    }, [currentUser, url]);
 
     return (
-        <div style={{ position: "relative", minHeight: 200 }}>
-            {currentUser && !noMoreProfiles ? (
-                <div
-                    style={{ ...animStyles, position: "absolute", width: "100%" }}
-                    onMouseDown={onDragStart}
-                    onMouseMove={dragging.current ? onDragMove : undefined}
-                    onMouseUp={onDragEnd}
-                    onMouseLeave={dragging.current ? onDragEnd : undefined}
-                    onTouchStart={onDragStart}
-                    onTouchMove={onDragMove}
-                    onTouchEnd={onDragEnd}
-                >
-                    <MiniaturaPerfil id={currentUser} />
-                    <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 16 }}>
-                        <SkipBtn onSkip={() => handleNext("left", false)} />
-                        <SuperLikeBtn perfilId={currentUser} onSuperLike={() => handleNext("up")} />
-                        <CurtirBtn userId={currentUser} onLike={() => handleNext("right", true)} />
-                        <RewindBtn onRewind={handleRewind} />
-                        <IniciarChatBtn pessoa2={currentUser} />
-                    </div>
-                </div>
-            ) : noMoreProfiles ? (
-                <div>Já acabaram os perfis nessa cidade</div>
-            ) : null}
-        </div>
+        <Box
+            sx={{
+                width: "100%",
+                minHeight: "60vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                py: { xs: 2, sm: 6 },
+                px: { xs: 1, sm: 0 }
+            }}
+        >
+            <Box sx={{
+                width: "100%",
+                maxWidth: 620,
+                mx: "auto",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center"
+            }}>
+                <Fade in={!!currentUser && !noMoreProfiles} timeout={400}>
+                    <Box
+                        sx={{
+                            width: "100%",
+                            maxWidth: 650,
+                            minHeight: { xs: 340, sm: 480, md: 600 },
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            px: 0,
+                            py: 0,
+                            position: "relative"
+                        }}
+                    >
+                        {/* Card do perfil com animação */}
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentUser}
+                                initial="initial"
+                                animate={getAnimKey()}
+                                exit="reset"
+                                variants={cardVariants}
+                                style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    perspective: 1200
+                                }}
+                            >
+                                <MiniaturaPerfil id={currentUser} />
+                            </motion.div>
+                        </AnimatePresence>
+                        {/* Botões de ação centralizados */}
+                        <Box sx={{
+                            display: "flex",
+                            gap: { xs: 3, sm: 5 },
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: "100%",
+                            mt: { xs: 2, sm: 3 },
+                            mb: { xs: 2, sm: 3 }
+                        }}>
+                            <Box sx={{ '& > *': { fontSize: 48, width: 72, height: 72 } }}>
+                                <SkipBtn onSkip={() => handleNext("left", false)} />
+                            </Box>
+                            <Box sx={{ '& > *': { fontSize: 48, width: 72, height: 72 } }}>
+                                <SuperLikeBtn perfilId={currentUser} onSuperLike={() => handleNext("up", false, true)} />
+                            </Box>
+                            <Box sx={{ '& > *': { fontSize: 48, width: 72, height: 72 } }}>
+                                <CurtirBtn userId={currentUser} onLike={() => handleNext("right", true)} />
+                            </Box>
+                            <Box sx={{ '& > *': { fontSize: 48, width: 72, height: 72 } }}>
+                                <RewindBtn onRewind={handleRewind} />
+                            </Box>
+                            <Box sx={{ '& > *': { fontSize: 48, width: 72, height: 72 } }}>
+                                <IniciarChatBtn pessoa2={currentUser} />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Fade>
+                {/* Mensagem de fim de perfis */}
+                {(!currentUser || noMoreProfiles) && (
+                    <Box sx={{ mt: 6, textAlign: "center", color: "#9933ff", fontWeight: 700 }}>
+                        Já acabaram os perfis nessa cidade
+                    </Box>
+                )}
+            </Box>
+        </Box>
     );
 }

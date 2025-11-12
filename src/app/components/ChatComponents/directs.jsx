@@ -2,6 +2,11 @@ import { useEffect, useState } from "react"
 import Link from "next/link";
 import GetCurtidos from "../Fy/getCurtidos";
 import GetSuperLikes from "../Fy/getSuperLike";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 
 export default function Directs() {
     const [directs, setDirects] = useState([]);
@@ -41,34 +46,58 @@ export default function Directs() {
     }, [])
 
     return (
-        <div>
-            <GetSuperLikes></GetSuperLikes>
-            <GetCurtidos></GetCurtidos>
-            {directs.map((d) => {
-                const key = `${d.pessoa1Id}-${d.pessoa2Id}`;
-                const data = usersData[key];
-                return (
-                    <div key={key}>
-                        <Link href={`/pages/Chat/${d.pessoa1Id}/${d.pessoa2Id}`}>
-  <div style={{ display: "flex", alignItems: "center" }}>
-    <img
-      src={data?.foto}
-      alt=""
-      style={{
-        width: "40px",
-        height: "40px",
-        objectFit: "cover",
-        borderRadius: "50%",
-        marginRight: "8px",
-        verticalAlign: "middle"
-      }}
-    />
-    {data ? data.nome : "Carregando..."}
-  </div>
-</Link>
-                    </div>
-                )
-            })}
-        </div>
+        <Box
+            sx={{
+                minHeight: "100vh",
+                bgcolor: "linear-gradient(180deg,#f8e4e6 0%, #cbe7e7 100%)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                py: 6
+            }}
+        >
+            <Box sx={{ width: "100%", maxWidth: 520, mb: 4 }}>
+                <GetSuperLikes />
+                <GetCurtidos />
+            </Box>
+            <Box sx={{ width: "100%", maxWidth: 520 }}>
+                {directs.map((d) => {
+                    const key = `${d.pessoa1Id}-${d.pessoa2Id}`;
+                    const data = usersData[key];
+                    return (
+                        <Card
+                            key={key}
+                            variant="outlined"
+                            sx={{
+                                mb: 2,
+                                borderRadius: 4,
+                                boxShadow: 2,
+                                bgcolor: "#fff",
+                                transition: "box-shadow 0.2s",
+                                "&:hover": { boxShadow: 6, borderColor: "#9933ff" }
+                            }}
+                        >
+                            <Link href={`/pages/Chat/${d.pessoa1Id}/${d.pessoa2Id}`} style={{ textDecoration: "none" }}>
+                                <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                    <Avatar
+                                        src={data?.foto}
+                                        alt={data?.nome || ""}
+                                        sx={{
+                                            width: 48,
+                                            height: 48,
+                                            border: "2px solid #9933ff",
+                                            mr: 2
+                                        }}
+                                    />
+                                    <Typography sx={{ fontWeight: 700, color: "#9933ff", fontSize: 18 }}>
+                                        {data ? data.nome : "Carregando..."}
+                                    </Typography>
+                                </CardContent>
+                            </Link>
+                        </Card>
+                    )
+                })}
+            </Box>
+        </Box>
     )
 }

@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import { useState, useEffect } from "react";
 
 
-export default function NavBar({ style = {} }) {
+export default function Header({ style = {} }) {
     const [superLikeCount, setSuperLikeCount] = useState(null);
     const [curtidaCount, setCurtidaCount] = useState(null);
     const [matchCount, setMatchCount] = useState(null);
@@ -94,7 +94,7 @@ export default function NavBar({ style = {} }) {
                 alignItems: "center",
                 justifyContent: "center",
                 position: "fixed",
-                bottom: 0,
+                top: 0, // alterado de bottom: 0 para top: 0
                 left: 0,
                 zIndex: 10,
                 px: 1,

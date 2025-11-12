@@ -1,49 +1,37 @@
-import { useState } from "react";
 import IconButton from "@mui/material/IconButton";
+import StarIcon from "@mui/icons-material/Star";
 
 export default function SuperLikeBtn({ perfilId, onSuperLike }) {
     const url = process.env.NEXT_PUBLIC_URL;
-    const [scale, setScale] = useState(1);
-    const [loading, setLoading] = useState(false);
-
     async function SuperLike(e) {
-        if (loading) return;
-        setLoading(true);
-        e?.stopPropagation?.();
-        try {
-            await fetch(`${url}Relacionamento/Superlike?perfilId=${encodeURIComponent(perfilId)}`, {
-                method: "GET",
-                credentials: "include"
-            });
-            if (onSuperLike) onSuperLike();
-        } finally {
-            setLoading(false);
-        }
+        await fetch(`${url}Relacionamento/Superlike?perfilId=${encodeURIComponent(perfilId)}`, {
+            method: "GET",
+            credentials: "include"
+        });
+        if (onSuperLike) onSuperLike();
     }
-
     return (
         <IconButton
             onClick={SuperLike}
-            disabled={loading}
-            onMouseDown={e => { setScale(1.15); e.stopPropagation(); }}
-            onMouseUp={e => { setScale(1); e.stopPropagation(); }}
-            onMouseLeave={() => setScale(1)}
-            onMouseEnter={() => setScale(1.1)}
             sx={{
-                p: 0,
-                transition: "transform 0.60s cubic-bezier(.4,2,.6,1)",
-                transform: `scale(${scale})`
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg,#ffe066 0%,#f5c542 100%)",
+                boxShadow: "0 4px 16px #f5c54233",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#f5c542",
+                fontSize: 38,
+                transition: "transform 0.2s",
+                "&:hover": {
+                    transform: "scale(1.12)",
+                    background: "linear-gradient(135deg,#ffe066 0%,#ffd700 100%)"
+                }
             }}
         >
-            <img
-                src="/navBar/superLikes.png"
-                alt="Super Like"
-                style={{
-                    width: 64,
-                    height: 64,
-                    transition: "transform 0.15s cubic-bezier(.4,2,.6,1)"
-                }}
-            />
+            <StarIcon sx={{ fontSize: 38 }} />
         </IconButton>
     );
 }

@@ -2,10 +2,12 @@
 import { useEffect, useState } from "react"
 import Payment from "../payment/page";
 import MiniaturaPerfil from "@/app/components/Fy/Miniatura";
+import SkipBtn from "@/app/components/Fy/SkipBtn";
+import CurtirBtn from "@/app/components/Fy/CurtirBtn";
 export default function page() {
     const [ids, setIds] = useState([]);
     const [mounted, setMounted] = useState(false);
-   
+
 
     const url = process.env.NEXT_PUBLIC_URL;
 
@@ -30,8 +32,12 @@ export default function page() {
             {ids != false ? (
                 <div>
                     {ids.map((e) => (
-                        <div key={e}>
+                        <div key={e} style={{ marginBottom: 32, display: "flex", flexDirection: "column", alignItems: "center" }}>
                             <MiniaturaPerfil id={e} />
+                            <div style={{ display: "flex", gap: 24, marginTop: 16 }}>
+                                <SkipBtn />
+                                <CurtirBtn />
+                            </div>
                         </div>
                     ))}
                 </div>

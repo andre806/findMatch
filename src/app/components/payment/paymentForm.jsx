@@ -71,50 +71,108 @@ export default function PaymentForm() {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ token: result.token.id, amount: planObj.price }),
-            credentials:"include"
+            credentials: "include"
         })
         const data = await res.json();
         alert(data)
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <Typography variant="h5" gutterBottom>Escolha seu plano</Typography>
-            <RadioGroup
-                value={selectedPlan}
-                onChange={e => setSelectedPlan(e.target.value)}
-                sx={{ flexDirection: 'row', mb: 2 }}
+        <Box
+            sx={{
+                minHeight: "100vh",
+                bgcolor: "linear-gradient(180deg,#f8e4e6 0%, #cbe7e7 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                py: 8
+            }}
+        >
+            <Box
+                sx={{
+                    bgcolor: "#fff",
+                    borderRadius: 6,
+                    boxShadow: 8,
+                    p: { xs: 3, sm: 5 },
+                    maxWidth: 520,
+                    width: "100%"
+                }}
             >
-                {plans.map(plan => (
-                    <Box key={plan.key} sx={{ mr: 2 }}>
-                        <Card variant="outlined" sx={{ minWidth: 220 }}>
-                            <CardContent>
-                                <FormControlLabel
-                                    value={plan.key}
-                                    control={<Radio />}
-                                    label={
-                                        <Box>
-                                            <Typography variant="h6">{plan.name} <span style={{ fontWeight: 400 }}>({plan.priceText})</span></Typography>
-                                            <ul style={{ margin: 0, paddingLeft: 18 }}>
-                                                {plan.features.map((f, i) => (
-                                                    <li key={i} style={{ fontSize: 13 }}>{f}</li>
-                                                ))}
-                                            </ul>
-                                        </Box>
-                                    }
-                                />
-                            </CardContent>
-                        </Card>
+                <form onSubmit={handleSubmit}>
+                    <Typography variant="h4" sx={{ fontWeight: 900, color: "#9933ff", mb: 4, textAlign: "center" }}>
+                        Escolha seu plano
+                    </Typography>
+                    <RadioGroup
+                        value={selectedPlan}
+                        onChange={e => setSelectedPlan(e.target.value)}
+                        sx={{ flexDirection: 'column', gap: 3, mb: 4, alignItems: "center" }}
+                    >
+                        {plans.map(plan => (
+                            <Card
+                                key={plan.key}
+                                variant="outlined"
+                                sx={{
+                                    minWidth: 220,
+                                    borderRadius: 4,
+                                    boxShadow: selectedPlan === plan.key ? 6 : 2,
+                                    borderColor: selectedPlan === plan.key ? "#9933ff" : "#ccc",
+                                    bgcolor: selectedPlan === plan.key ? "#f8e4e6" : "#fafafa",
+                                    transition: "box-shadow 0.2s, border-color 0.2s"
+                                }}
+                            >
+                                <CardContent>
+                                    <FormControlLabel
+                                        value={plan.key}
+                                        control={<Radio sx={{ color: "#9933ff" }} />}
+                                        label={
+                                            <Box>
+                                                <Typography variant="h6" sx={{ color: "#9933ff", fontWeight: 700 }}>
+                                                    {plan.name} <span style={{ fontWeight: 400 }}>({plan.priceText})</span>
+                                                </Typography>
+                                                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                                                    {plan.features.map((f, i) => (
+                                                        <li key={i} style={{ fontSize: 13 }}>{f}</li>
+                                                    ))}
+                                                </ul>
+                                            </Box>
+                                        }
+                                    />
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </RadioGroup>
+                    <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700, color: "#9933ff" }}>
+                        Dados do cartão
+                    </Typography>
+                    <Box sx={{
+                        mb: 4,
+                        p: 2,
+                        border: '2px solid #9933ff',
+                        borderRadius: 3,
+                        bgcolor: "#fafafa"
+                    }}>
+                        <CardElement />
                     </Box>
-                ))}
-            </RadioGroup>
-            <Typography variant="subtitle1" gutterBottom>Dados do cartão</Typography>
-            <Box sx={{ mb: 2, p: 1, border: '1px solid #ccc', borderRadius: 2 }}>
-                <CardElement />
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="secondary"
+                        size="large"
+                        sx={{
+                            borderRadius: 3,
+                            fontWeight: 700,
+                            fontSize: 18,
+                            px: 4,
+                            py: 2,
+                            boxShadow: 3,
+                            textTransform: "none",
+                            width: "100%"
+                        }}
+                    >
+                        Pagar {plans.find(p => p.key === selectedPlan).priceText}
+                    </Button>
+                </form>
             </Box>
-            <Button type="submit" variant="contained" color="primary">
-                Pagar {plans.find(p => p.key === selectedPlan).priceText}
-            </Button>
-        </form>
-    )
+        </Box>
+    );
 }

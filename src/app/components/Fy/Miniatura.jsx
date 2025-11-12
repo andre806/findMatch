@@ -12,8 +12,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Stack from "@mui/material/Stack";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import Chip from "@mui/material/Chip";
 
-export default function MiniaturaPerfil({ id }) {
+export default function MiniaturaPerfil({ id, size = 180, square = false }) {
     const [data, setData] = useState(null);
     const [showInfo, setShowInfo] = useState(false);
     const [fotos, setFotos] = useState([]);
@@ -75,53 +76,55 @@ export default function MiniaturaPerfil({ id }) {
         // Você pode adicionar lógica extra aqui se quiser
     }
 
+    // Adicione interesses mock para visual
+    const interests = data?.interesses || ["Música", "Viagem", "Cinema"];
+
     if (!data) return null;
 
     return (
         <Card
             sx={{
-                width: 340,
-                height: 440,
-                borderRadius: 3,
+                width: "100%",
+                maxWidth: 480,
+                minHeight: 580,
+                borderRadius: 8,
                 overflow: "hidden",
-                boxShadow: 6,
+                boxShadow: 8,
                 bgcolor: "#18181b",
                 position: "relative",
                 display: "flex",
-                flexDirection: "column"
+                flexDirection: "column",
+                alignItems: "center"
             }}
         >
             {/* Carrossel de fotos */}
             <Box
                 sx={{
-                    display: "flex",
-                    overflowX: "auto",
                     width: "100%",
-                    height: 320,
-                    scrollSnapType: "x mandatory",
+                    height: 570,
                     bgcolor: "#222",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    position: "relative"
                 }}
             >
                 {fotos && fotos.length > 0 ? (
-                    fotos.map((foto, idx) => (
-                        <img
-                            key={idx}
-                            src={foto.url || foto}
-                            alt={`foto-${idx}`}
-                            style={{
-                                width: 340,
-                                height: 320,
-                                objectFit: "cover",
-                                flex: "0 0 100%",
-                                scrollSnapAlign: "start",
-                            }}
-                        />
-                    ))
+                    <img
+                        src={fotos[0].url || fotos[0]}
+                        alt="foto-principal"
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover"
+                        }}
+                    />
                 ) : (
                     <Box
                         sx={{
-                            width: 340,
-                            height: 320,
+                            width: "100%",
+                            height: "100%",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -132,9 +135,96 @@ export default function MiniaturaPerfil({ id }) {
                         Sem fotos
                     </Box>
                 )}
+                {/* Faixa gradiente sobreposta */}
+                <Box sx={{
+                    position: "absolute",
+                    left: "50%",
+                    bottom: 0,
+                    transform: "translateX(-50%)",
+                    width: "90%",
+                    borderRadius: "16px",
+                    background: "linear-gradient(90deg,#ff66cc,#9933ff)",
+                    boxShadow: "0 2px 8px #9933ff22",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    py: 1.5,
+                    px: 2,
+                    zIndex: 2
+                }}>
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            color: "#fff",
+                            fontWeight: 900,
+                            fontSize: { xs: 22, sm: 28 }, // aumentada
+                            textAlign: "center",
+                            lineHeight: 1.2,
+                            letterSpacing: 0.5,
+                            fontFamily: "'Montserrat', 'Roboto', sans-serif"
+                        }}
+                    >
+                        {data.nome}{data.idade ? `, ${data.idade}` : ""}{data.cidade ? `, ${data.cidade}` : ""}
+                    </Typography>
+                </Box>
             </Box>
+            {/* Informações do perfil
+            <CardContent
+                sx={{
+                    width: "100%",
+                    bgcolor: "#fff",
+                    color: "#333",
+                    borderBottomLeftRadius: 8,
+                    borderBottomRightRadius: 8,
+                    boxShadow: "0 4px 32px #9933ff22",
+                    p: { xs: 3, sm: 4 }, // mais espaçamento
+                    minHeight: 210, // maior altura
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2.5, // mais espaçamento entre linhas
+                    alignItems: "flex-start",
+                    fontSize: { xs: 32, sm: 36 }, // fonte maior
+                    fontFamily: "'Montserrat', 'Roboto', sans-serif"
+                }}
+            >
+                <Typography variant="body1" fontWeight={700} sx={{ color: "#9933ff", fontSize: 24, fontFamily: "'Montserrat', 'Roboto', sans-serif" }}>
+                    {data.ocupacao || "Ocupação não informada"}
+                </Typography>
+                <Typography variant="body1" sx={{ fontSize: 22, fontWeight: 500, mb: 0.5 }}>
+                    <b>Educação:</b> <span style={{ color: "#333" }}>{data.educacao || "Não informado"}</span>
+                </Typography>
+                <Typography variant="body1" sx={{ fontSize: 22, fontWeight: 500, mb: 0.5 }}>
+                    <b>Sexualidade:</b> <span style={{ color: "#333" }}>{data.sexualidade || "Não informado"}</span>
+                </Typography>
+                <Typography variant="body1" sx={{ color: "#a3a3a3", fontSize: 20, fontWeight: 500, mb: 0.5 }}>
+                    <b>Gosto musical:</b> {data.gostoMusical || "Não informado"}
+                </Typography>
+                <Typography variant="body1" sx={{ color: "#d4d4d4", fontSize: 20, fontWeight: 500, mb: 0.5 }}>
+                    <b>Bio:</b> {data.bio || "Não informado"}
+                </Typography> */}
+            {/* Chips de interesses
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mt: 1 }}>
+                    {interests.map((interest, idx) => (
+                        <Chip
+                            key={interest}
+                            label={interest}
+                            sx={{
+                                bgcolor: idx % 2 === 0 ? "#9933ff" : "#ff66cc",
+                                color: "#fff",
+                                fontWeight: 700,
+                                fontSize: 18,
+                                px: 2.5,
+                                py: 1.2,
+                                borderRadius: 2,
+                                boxShadow: "0 2px 8px #9933ff22",
+                                fontFamily: "'Montserrat', 'Roboto', sans-serif"
+                            }}
+                        />
+                    ))}
+                </Box>
+            </CardContent> */}
             {/* Nome, idade */}
-            <Box
+            {/* <Box
                 sx={{
                     position: "absolute",
                     left: 20,
@@ -146,7 +236,7 @@ export default function MiniaturaPerfil({ id }) {
                 <Typography variant="h6" fontWeight={700}>
                     {data.nome}{data.idade ? `, ${data.idade}` : ""}
                 </Typography>
-            </Box>
+            </Box> */}
             {/* Botões Curtir e Skip */}
             <Stack
                 direction="row"
@@ -198,7 +288,7 @@ export default function MiniaturaPerfil({ id }) {
             {/* Painel de informações */}
             <Collapse
                 in={showInfo}
-                timeout={{ enter: 5.15, exit: 0.15 }} // subida lenta, descida rápida
+                timeout={0} // sem fade, instantâneo
                 unmountOnExit
             >
                 <CardContent
@@ -207,51 +297,43 @@ export default function MiniaturaPerfil({ id }) {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        bgcolor: "rgba(24,24,27,0.98)",
-                        color: "#fff",
-                        borderTopLeftRadius: 3,
-                        borderTopRightRadius: 3,
-                        boxShadow: 6,
-                        p: 2,
+                        bgcolor: "#fff",
+                        color: "#333",
+                        borderTopLeftRadius: 24,
+                        borderTopRightRadius: 24,
+                        boxShadow: "0 4px 32px #9933ff55",
+                        p: { xs: 3, sm: 4 },
                         zIndex: 3,
+                        minHeight: 210,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2.5,
+                        alignItems: "flex-start",
+                        fontSize: { xs: 32, sm: 36 },
+                        fontFamily: "'Montserrat', 'Roboto', sans-serif"
                     }}
                 >
-                    <Typography variant="subtitle1" fontWeight={700}>
+                    <Typography variant="subtitle1" fontWeight={900} sx={{ color: "#ff66cc", fontSize: 28, fontFamily: "'Montserrat', 'Roboto', sans-serif" }}>
                         {data.nome}{data.idade ? `, ${data.idade}` : ""}
                     </Typography>
-                    <Typography variant="body2" fontWeight={600}>
+                    <Typography variant="body1" fontWeight={700} sx={{ color: "#9933ff", fontSize: 24, fontFamily: "'Montserrat', 'Roboto', sans-serif" }}>
                         {data.cidade}
                     </Typography>
-                    <Typography variant="body2">
-                        <b>Ocupação:</b> {data.ocupação || "Não informado"}
+                    <Typography variant="body1" sx={{ fontSize: 22, fontWeight: 500, mb: 0.5 }}>
+                        <b>Ocupação:</b> <span style={{ color: "#333" }}>{data.ocupacao || "Não informado"}</span>
                     </Typography>
-                    <Typography variant="body2">
-                        <b>Educação:</b> {data.educacao || "Não informado"}
+                    <Typography variant="body1" sx={{ fontSize: 22, fontWeight: 500, mb: 0.5 }}>
+                        <b>Educação:</b> <span style={{ color: "#333" }}>{data.educacao || "Não informado"}</span>
                     </Typography>
-                    <Typography variant="body2">
-                        <b>Sexualidade:</b> {data.sexualidade || "Não informado"}
+                    <Typography variant="body1" sx={{ fontSize: 22, fontWeight: 500, mb: 0.5 }}>
+                        <b>Sexualidade:</b> <span style={{ color: "#333" }}>{data.sexualidade || "Não informado"}</span>
                     </Typography>
-                    <Typography variant="body2" color="#a3a3a3">
+                    <Typography variant="body1" sx={{ color: "#333", fontSize: 20, fontWeight: 500, mb: 0.5 }}>
                         <b>Gosto musical:</b> {data.gostoMusical || "Não informado"}
                     </Typography>
-                    <Typography variant="body2" color="#d4d4d4">
+                    <Typography variant="body1" sx={{ color: "#333", fontSize: 20, fontWeight: 500, mb: 0.5 }}>
                         <b>Bio:</b> {data.bio || "Não informado"}
                     </Typography>
-                    {data.urlFotoPerfil && (
-                        <Box sx={{ mt: 1, display: "flex", justifyContent: "center" }}>
-                            <img
-                                src={data.urlFotoPerfil}
-                                alt="Foto de perfil"
-                                style={{
-                                    width: 60,
-                                    height: 60,
-                                    borderRadius: "50%",
-                                    objectFit: "cover",
-                                    border: "2px solid #444",
-                                }}
-                            />
-                        </Box>
-                    )}
                 </CardContent>
             </Collapse>
             <Snackbar

@@ -1,16 +1,20 @@
 import { useState } from "react";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
 
 export default function TrocarFotoBtn({ urlAntiga }) {
     const [showModal, setShowModal] = useState(false);
     const [novaFoto, setNovaFoto] = useState(null);
     const [preview, setPreview] = useState(null);
-    const [loading, setLoading] = useState(false); // novo estado
-    const [fotoAtual, setFotoAtual] = useState(urlAntiga); // controla a foto exibida
+    const [loading, setLoading] = useState(false);
+    const [fotoAtual, setFotoAtual] = useState(urlAntiga);
     const url = process.env.NEXT_PUBLIC_URL;
 
     async function trocar() {
         if (!novaFoto) return;
-        setLoading(true); // inicia loading
+        setLoading(true);
         const formData = new FormData();
         formData.append("novaFoto", novaFoto);
 
@@ -22,9 +26,8 @@ export default function TrocarFotoBtn({ urlAntiga }) {
         setShowModal(false);
         setNovaFoto(null);
         setPreview(null);
-        // Atualiza a foto exibida (força reload da imagem)
         setFotoAtual(`${urlAntiga.split("?")[0]}?${Date.now()}`);
-        setLoading(false); // encerra loading
+        setLoading(false);
     }
 
     function handleChange(e) {
@@ -40,53 +43,65 @@ export default function TrocarFotoBtn({ urlAntiga }) {
     }
 
     return (
-        <div>
-            {/* Mostra a foto atual */}
-            <button onClick={() => setShowModal(true)}>
-                trocar
-            </button>
-            {showModal && (
-                <div style={{
-                    position: "fixed",
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    background: "rgba(0,0,0,0.5)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    zIndex: 9999 // garante sobreposição
+        <Box>
+            <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                sx={{ mt: 1, mb: 1, borderRadius: 2, textTransform: "none" }}
+                onClick={() => setShowModal(true)}
+            >
+                Trocar foto
+            </Button>
+            <Modal open={showModal} onClose={() => setShowModal(false)}>
+                <Box sx={{
+                    bgcolor: "#fff",
+                    p: 3,
+                    borderRadius: 2,
+                    minWidth: 280,
+                    mx: "auto",
+                    my: "20vh",
+                    boxShadow: 8,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center"
                 }}>
-                    <div style={{ background: "#fff", padding: 20, borderRadius: 8, minWidth: 250 }}>
-                        {loading ? (
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                {/* Rodinha de carregamento simples */}
-                                <div style={{
-                                    border: "4px solid #ccc",
-                                    borderTop: "4px solid #333",
-                                    borderRadius: "50%",
-                                    width: 32,
-                                    height: 32,
-                                    animation: "spin 1s linear infinite",
-                                    marginBottom: 10
-                                }} />
-                                <span>Enviando...</span>
-                                {/* CSS para animação */}
-                                <style>
-                                    {`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}
-                                </style>
-                            </div>
-                        ) : (
-                            <>
-                                <input type="file" onChange={handleChange} />
-                                {preview && (
-                                    <div style={{ margin: "10px 0" }}>
-                                        <img src={preview} alt="Preview" style={{ maxWidth: 200, maxHeight: 200, borderRadius: 8 }} />
-                                    </div>
-                                )}
-                                <button onClick={trocar}>Confirmar troca</button>
-                                <button onClick={() => setShowModal(false)}>Cancelar</button>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
-        </div>
+                    {loading ? (
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                            <CircularProgress color="secondary" />
+                            <span>Enviando...</span>
+                        </Box>
+                    ) : (
+                        <>
+                            <input type="file" onChange={handleChange} style={{ marginBottom: 12 }} />
+                            {preview && (
+                                <Box sx={{ mb: 2 }}>
+                                    <img src={preview} alt="Preview" style={{ maxWidth: 200, maxHeight: 200, borderRadius: 8 }} />
+                                </Box>
+                            )}
+                            <Box sx={{ display: "flex", gap: 2 }}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    onClick={trocar}
+                                    disabled={!novaFoto}
+                                >
+                                    Confirmar troca
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="inherit"
+                                    size="small"
+                                    onClick={() => setShowModal(false)}
+                                >
+                                    Cancelar
+                                </Button>
+                            </Box>
+                        </>
+                    )}
+                </Box>
+            </Modal>
+        </Box>
     );
 }

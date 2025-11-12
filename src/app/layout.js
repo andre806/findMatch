@@ -1,5 +1,6 @@
 import { SessionProvider } from "next-auth/react";
 import NavBar from "./components/utils/NavBar";
+import Header from "./components/utils/Header";
 export const metadata = {
   title: 'GothicMatch - Encontros Góticos',
   description: 'Conecte-se com pessoas que compartilham do estilo gótico',
@@ -35,14 +36,16 @@ export default function RootLayout({ children }) {
               </div>
             </nav>
           </header>
-
+          <Header />
           <main className="main-content">
             {children}
           </main>
 
 
           <footer className="app-footer" style={{ position: "relative" }}>
-            <NavBar style={{ bottom: 20 }} />
+
+
+
             <p>&copy; 2025 GothicMatch. Conectando almas .</p>
           </footer>
         </div>

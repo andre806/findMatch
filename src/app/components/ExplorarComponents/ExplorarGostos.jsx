@@ -12,6 +12,7 @@ import SuperLikeBtn from "../Fy/SuperLikeBtn";
 import RewindBtn from "../Fy/rewindBtn";
 import IniciarChatBtn from "../Fy/IniciarChatBtn";
 import gostosJson from "@/app/json/gostos.json";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ExplorarGostos() {
     const [ids, setIds] = useState([]);
@@ -146,6 +147,40 @@ export default function ExplorarGostos() {
         )
         : GOSTOS_LIST;
 
+    // Adicione esta definição antes do return:
+    const cardVariants = {
+        initial: { x: 0, y: 0, rotate: 0, opacity: 1 },
+        skip: {
+            x: -200,
+            y: 400,
+            rotate: -35,
+            opacity: 0,
+            transition: { duration: 0.5, ease: "easeIn" }
+        },
+        like: {
+            x: 200,
+            y: 400,
+            rotate: 35,
+            opacity: 0,
+            transition: { duration: 0.5, ease: "easeIn" }
+        },
+        superlike: { y: -600, opacity: 0, transition: { duration: 0.4 } },
+        rewind: {
+            rotateY: [0, 90, 0],
+            opacity: [1, 0, 1],
+            transition: { duration: 0.5 }
+        },
+        reset: { x: 0, y: 0, rotate: 0, rotateY: 0, opacity: 1, transition: { duration: 0.2 } }
+    };
+
+    function getAnimKey() {
+        if (animDirection === "left") return "skip";
+        if (animDirection === "right") return "like";
+        if (animDirection === "up") return "superlike";
+        if (animDirection === "rewind") return "rewind";
+        return "initial";
+    }
+
     return (
         <Box
             sx={{
@@ -239,42 +274,66 @@ export default function ExplorarGostos() {
                     ml: { xs: 0, sm: 28 }
                 }}
             >
-                {currentUser && !noMoreProfiles ? (
-                    <div
-                        style={{
-                            ...animStyles,
-                            position: "relative",
-                            width: "100%",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "flex-start",
-                            top: "-32px"
-                        }}
-                    >
-                        {/* Miniatura mais acima e à esquerda */}
-                        <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 0, mb: 1, width: "100%" }}>
-                            <MiniaturaPerfil id={currentUser} />
-                        </Box>
-                        {/* Botões abaixo da miniatura, alinhados à esquerda */}
-                        <Box
-                            sx={{
-                                display: "flex",
-                                gap: 3,
-                                justifyContent: "flex-start",
-                                mt: 1.5,
-                                width: "100%"
-                            }}
-                        >
-                            <SkipBtn onSkip={() => handleNext("left", false)} />
-                            <SuperLikeBtn perfilId={currentUser} onSuperLike={() => handleNext("up", false, true)} />
-                            <CurtirBtn userId={currentUser} onLike={() => handleNext("right", true)} />
-                            <RewindBtn onRewind={handleRewind} />
-                            <IniciarChatBtn pessoa2={currentUser} />
-                        </Box>
-                    </div>
-                ) : noMoreProfiles && gosto ? (
-                    <Box sx={{ mt: 6, textAlign: "center" }}>Já acabaram os perfis com esse gosto</Box>
-                ) : null}
+                {/* Card central estilo Fy */}
+                <Box sx={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    minHeight: 400,
+                    maxWidth: 650
+                }}>
+                    <Box sx={{
+                        transform: "scale(0.8)",
+                        transformOrigin: "top center",
+                        width: "100%"
+                    }}>
+                        <AnimatePresence mode="wait">
+                            {currentUser && !noMoreProfiles && (
+                                <motion.div
+                                    key={currentUser}
+                                    initial="initial"
+
+                                    exit="reset"
+                                    variants={cardVariants}
+                                    style={{
+                                        width: "100%",
+                                        display: "center",
+                                        gap: 6,
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        perspective: 1200
+                                    }}
+                                >
+                                    <MiniaturaPerfil id={currentUser} sx={{ transform: "scale(0.7)", transformOrigin: "top center" }} />
+                                    {/* Botões abaixo da miniatura, alinhados à direita */}
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            gap: 3,
+                                            justifyContent: "space-around",
+                                            mt: -1,
+                                            width: "100%",
+                                            pr: 8
+                                        }}
+                                    >
+                                        <SkipBtn onSkip={() => handleNext("left", false)} />
+                                        <SuperLikeBtn perfilId={currentUser} onSuperLike={() => handleNext("up", false, true)} />
+                                        <CurtirBtn userId={currentUser} onLike={() => handleNext("right", true)} />
+                                        <RewindBtn onRewind={handleRewind} />
+                                        <IniciarChatBtn pessoa2={currentUser} />
+                                    </Box>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        {(!currentUser || noMoreProfiles) && gosto && (
+                            <Box sx={{ mt: 6, textAlign: "center", color: "#9933ff", fontWeight: 700 }}>
+                                Já acabaram os perfis com esse gosto
+                            </Box>
+                        )}
+                    </Box>
+                </Box>
             </Box>
         </Box>
     );
