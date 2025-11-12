@@ -9,18 +9,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.modules.chat.Repository.ChatRepository;
 import com.example.demo.modules.chat.models.Chat;
+import com.example.demo.modules.relacionamentos.services.ChatLimitedService;
 import com.example.demo.modules.relacionamentos.services.CurtidaLimitedService;
+import com.example.demo.modules.relacionamentos.services.RewindService;
 import com.example.demo.modules.relacionamentos.services.SuperLikeLimitedService;
 import com.example.demo.modules.usuarios.UserRepository;
 import com.example.demo.services.Cryp;
 import com.example.demo.services.Jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
-
-import org.springframework.web.bind.annotation.RequestBody;
-
-import com.example.demo.modules.relacionamentos.services.ChatLimitedService;
-import com.example.demo.modules.relacionamentos.services.RewindService;
 
 
 @RestController
@@ -95,11 +92,13 @@ public class RelacionamentoController {
             // Agora verifica se há reciprocidade e se já curtiu (após salvar)
             boolean jaCurtiu = curtidaRepo.existsByCurtidoIdAndQuemCurteId(quemCurteId, decryptedPerfilId);
             boolean reciproco = curtidaRepo.existsByCurtidoIdAndQuemCurteId(decryptedPerfilId, quemCurteId);
-
+            boolean jaCurtiuSuperLike = superRepo.existsByCurtidoIdAndQuemCurteId(quemCurteId, decryptedPerfilId);
+            boolean reciprocoSuperLike = superRepo.existsByCurtidoIdAndQuemCurteId(decryptedPerfilId, quemCurteId);
             var quemCurteIdCrypt = cryp.Cryptografar(quemCurteId);
             var curtidoIdCrypt = cryp.Cryptografar(decryptedPerfilId);
+            
 
-            if (reciproco && jaCurtiu) {
+            if (reciproco && (jaCurtiu || jaCurtiuSuperLike || reciprocoSuperLike) ) {
                 var newChat = iniciarChat(quemCurteIdCrypt, curtidoIdCrypt);
                 var newMatch = new Match(quemCurteIdCrypt, curtidoIdCrypt);
                 matchRepo.save(newMatch);
@@ -114,25 +113,46 @@ public class RelacionamentoController {
             return ResponseEntity.ok().body("erro no try"+ e.getMessage());
         }
     }
-    @GetMapping("/Superlike")
-    public ResponseEntity<?> SuperLike(@RequestParam String perfilId, HttpServletRequest request) {
-        try{
-            var email = jwt.getEmail(request);
-            var user = userRepo.findByEmail(email);
-            if(superLikeService.podeSuperLike(user)){
-            SuperLike superlike = new SuperLike(user.getId(), perfilId);
+   @GetMapping("/Superlike")
+public ResponseEntity<?> SuperLike(@RequestParam String perfilId, HttpServletRequest request) {
+    try {
+        perfilId = perfilId.replace(' ', '+');
+        var email = jwt.getEmail(request);
+        var user = userRepo.findByEmail(email);
+        String quemCurteId = user.getId();
+        String decryptedPerfilId = cryp.descriptografar(perfilId);
+
+        if (superLikeService.podeSuperLike(user)) {
+            SuperLike superlike = new SuperLike(quemCurteId, decryptedPerfilId);
             superLikeService.registrarSuperLike(user);
             superRepo.save(superlike);
-            return ResponseEntity.ok().body("SuperLike efetuado com sucesso");
-            }else{
-                return ResponseEntity.ok().body("você não possui mais SuperLikes altere seu plano");
+
+            boolean jaCurtiu = curtidaRepo.existsByCurtidoIdAndQuemCurteId(quemCurteId, decryptedPerfilId);
+            boolean reciproco = curtidaRepo.existsByCurtidoIdAndQuemCurteId(decryptedPerfilId, quemCurteId);
+            boolean jaCurtiuSuperLike = superRepo.existsByCurtidoIdAndQuemCurteId(quemCurteId, decryptedPerfilId);
+            boolean reciprocoSuperLike = superRepo.existsByCurtidoIdAndQuemCurteId(decryptedPerfilId, quemCurteId);
+
+            var quemCurteIdCrypt = cryp.Cryptografar(quemCurteId);
+            var curtidoIdCrypt = cryp.Cryptografar(decryptedPerfilId);
+
+            if (reciproco && (jaCurtiu || jaCurtiuSuperLike || reciprocoSuperLike)) {
+                var newChat = iniciarChat(quemCurteIdCrypt, curtidoIdCrypt);
+                var newMatch = new Match(quemCurteIdCrypt, curtidoIdCrypt);
+                matchRepo.save(newMatch);
+                if (newChat.equals("chat criado com sucesso")) {
+                    return ResponseEntity.ok().body("chat Criado");
+                } else {
+                    return ResponseEntity.ok().body("erro ao criar o chat");
+                }
             }
-            
-            
-        } catch (Exception e) {
-            return ResponseEntity.ok().body("erro no try"+ e.getMessage());
+            return ResponseEntity.ok().body("SuperLike efetuado com sucesso");
+        } else {
+            return ResponseEntity.ok().body("você não possui mais SuperLikes, altere seu plano");
         }
+    } catch (Exception e) {
+        return ResponseEntity.ok().body("erro no try" + e.getMessage());
     }
+}
     @PostMapping("/iniciarChat")
     public ResponseEntity<?> iniciarChat(HttpServletRequest request, String pessoa2) {
        try{
