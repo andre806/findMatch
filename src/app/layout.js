@@ -1,5 +1,3 @@
-import { SessionProvider } from "next-auth/react";
-import NavBar from "./components/utils/NavBar";
 import Header from "./components/utils/Header";
 import EncaminhaUser from "./services/encaminhaUser";
 export const metadata = {
