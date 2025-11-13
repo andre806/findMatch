@@ -83,7 +83,7 @@ function Apresentacao() {
     const handleGoogleSignIn = () => {
         const token = getTokenFromCookies();
         if (!token) {
-            signIn("google", { callbackUrl: "http://localhost:3000" });
+            signIn("google", { callbackUrl: "https://find-match.vercel.app/" });
         }
     };
 
