@@ -30,6 +30,17 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="gothic-theme">
+          <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/service-worker.js');
+                });
+              }
+            `,
+          }}
+        />
         <div id="root">
           <header className="app-header">
             <nav className="navbar">
