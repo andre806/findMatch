@@ -1,6 +1,6 @@
 {
-    "name": "Gothic Match",
-    "short_name": "GothicMatch",
+    "name": "find match",
+    "short_name": "find match",
     "description": "Encontre seu par gótico!",
     "start_url": "/",
     "display": "standalone",
@@ -9,12 +9,12 @@
     "orientation": "portrait",
     "icons": [
         {
-            "src": "/logo.png",
+            "src": "/icons/icon-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "/logo.png",
+            "src": "/icons/icon-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
         }
