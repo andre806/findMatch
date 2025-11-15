@@ -9,7 +9,7 @@ function getTokenFromCookies() {
 }
 
 function Apresentacao() {
-    const url = process.env.NEXT_PUBLIC_URL;
+    const url = "https://demo-billowing-pine-7198.fly.dev";
     const { data: session, status } = useSession();
     const [logado, setLogado] = useState(null);
     const [user, setUser] = useState({ nome: "", email: "" });
