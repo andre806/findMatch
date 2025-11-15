@@ -18,7 +18,7 @@ function Apresentacao() {
     useEffect(() => {
         if (!session?.user?.email) return;
         async function fetchPasso1() {
-            const db = await fetch(`${url}User/verificaPasso1?email=${session.user.email}`);
+            const db = await fetch(`https://demo-billowing-pine-7198.fly.dev/User/verificaPasso1?email=${session.user.email}`);
             const res = await db.json();
             setPasso1(res);
         }
