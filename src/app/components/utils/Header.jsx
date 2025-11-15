@@ -108,7 +108,7 @@ export default function Header() {
             {/* Drawer lateral para mobile */}
             <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
                 <Box sx={{ width: 220, p: 2 }}>
-                    {["Início", "Matches", "aumente seus matchs", "Explorar"].map((menu, idx) => (
+                    {["Início", "Matchs", "aumente seus matchs", "Explorar"].map((menu, idx) => (
                         <Button
                             key={menu}
                             fullWidth
@@ -118,7 +118,7 @@ export default function Header() {
                                 fontSize: 16,
                                 mb: 1,
                                 borderBottom:
-                                    (menu === "Matches" && (pathname === "/pages/direct" || pathname === "/pages/directs"))
+                                    (menu === "Matchs" && (pathname === "/pages/directs" || pathname === "/pages/directs"))
                                         ? "3px solid #9933ff"
                                         : (menu === "Início" && pathname === "/pages/home")
                                             ? "3px solid #9933ff"
@@ -132,7 +132,7 @@ export default function Header() {
                                 transition: "color 0.3s"
                             }}
                             onClick={() => {
-                                if (menu === "Matches") router.push("/pages/direct");
+                                if (menu === "Matchs") router.push("/pages/directs");
                                 if (menu === "Início") router.push("/pages/home");
                                 if (menu === "Explorar") router.push("/pages/explorar");
                                 if (menu === "aumente seus matchs") router.push("/pages/payment");
