@@ -4,7 +4,7 @@ export default function Login() {
     const url = process.env.NEXT_PUBLIC_URL;
     const [email, setEmail] = useState("");
     async function Login() {
-        await fetch(`https://demo-billowing-pine-7198.fly.dev/User/login?email=${email}`, {
+        await fetch(`https://demo-proud-morning-3296.fly.dev/User/login?email=${email}`, {
             method: "POST",
             credentials: "include"
         });
