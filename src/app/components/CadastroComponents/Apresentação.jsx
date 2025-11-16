@@ -83,7 +83,7 @@ function Apresentacao() {
     const handleGoogleSignIn = () => {
         const token = getTokenFromCookies();
         if (!token) {
-            signIn("google", { callbackUrl: "https://find-match.vercel.app/" });
+            signIn("google", { callbackUrl: "https://find-match-j1vq897dl-andres-projects-fd209be4.vercel.app/" });
         }
     };
 

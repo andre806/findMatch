@@ -47,13 +47,15 @@ export default function RootLayout({ children }) {
                 <span className="logo-text"></span>
               </div>
             </nav>
+              <Header />
           </header>
           <RequireAuth>
-          <Header />
-         </RequireAuth>
-          <main className="main-content">
+             <main className="main-content">
             {children}
           </main>
+        
+         </RequireAuth>
+         
 
 
           <footer className="app-footer" style={{ position: "relative" }}>
