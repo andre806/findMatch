@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -9,9 +9,9 @@ export default function RequireAuth({ children }) {
 
     useEffect(() => {
         async function Verifica() {
-            const db = await fetch(`${url}User/VerificaLogado`,{
-                method:"GET",
-                credentials:"include"
+            const db = await fetch(`${url}User/VerificaLogado`, {
+                method: "GET",
+                credentials: "include"
             });
             const res = await db.json();
             setLogado(res);
@@ -21,9 +21,9 @@ export default function RequireAuth({ children }) {
 
     useEffect(() => {
         if (logado === null) return; // ainda carregando
-        if (logado === true && window.location.pathname !== "/pages/perfil") {
+        if (logado === true) {
             router.replace("/pages/perfil");
-        } else if (logado === false && window.location.pathname !== "/") {
+        } else if (logado === false) {
             router.replace("/");
         }
     }, [logado, router]);

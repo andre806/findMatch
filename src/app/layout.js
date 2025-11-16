@@ -1,5 +1,5 @@
 import Header from "./components/utils/Header";
-import EncaminhaUser from "./services/encaminhaUser";
+import RequireAuth from "./services/VerificaLogado";
 export const metadata = {
   title: 'GothicMatch - Encontros Góticos',
   description: 'Conecte-se com pessoas que compartilham do estilo gótico',
@@ -48,9 +48,9 @@ export default function RootLayout({ children }) {
               </div>
             </nav>
           </header>
-          <EncaminhaUser>
+          <RequireAuth>
           <Header />
-         </EncaminhaUser>
+         </RequireAuth>
           <main className="main-content">
             {children}
           </main>

@@ -88,39 +88,54 @@ function Apresentacao() {
     };
 
     return (
-
         <Box
             sx={{
                 minHeight: '100vh',
                 width: '100vw',
-                backgroundImage: `url(/BGApresentação.png)`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                background: '#fff', // fundo branco
+                position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                px: { xs: 1, sm: 2 },
             }}
         >
-            <Container maxWidth="md" sx={{ py: 4 }}>
+            <Container
+                maxWidth="sm"
+                sx={{
+                    py: { xs: 2, sm: 4 },
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    zIndex: 1,
+                }}
+            >
                 <Paper
-                    elevation={3}
+                    elevation={4}
                     sx={{
-                        p: 4,
-                        borderRadius: 2,
-                        backgroundColor: 'rgba(20, 20, 30, 0.85)', // Fundo mais escuro e translúcido
+                        p: { xs: 2, sm: 4 },
+                        borderRadius: 3,
+                        background: 'linear-gradient(135deg, rgba(30,30,40,0.95) 60%, rgba(60,40,80,0.90) 100%)',
                         color: '#fafafa',
                         boxShadow: '0 8px 32px 0 rgba(31,38,135,0.37)',
-                        backdropFilter: 'none',
+                        backdropFilter: 'blur(2px)',
+                        width: '100%',
+                        maxWidth: 420,
+                        mx: 'auto',
                     }}
                 >
                     <Box textAlign="center">
                         <img
                             src="/logo.png"
-                            alt="Logo FindMatch"
+                            alt="Logo Cupido App"
                             style={{
-                                width: 140, // aumentado de 90 para 140
-                                marginBottom: 24,
-                                filter: 'drop-shadow(0 2px 8px #0008)'
+                                width: 110,
+                                marginBottom: 18,
+                                filter: 'drop-shadow(0 2px 8px #0008)',
+                                borderRadius: 16,
+                                background: 'rgba(40,40,60,0.5)',
+                                padding: 8,
                             }}
                         />
                         <Typography
@@ -128,18 +143,16 @@ function Apresentacao() {
                             component="h1"
                             gutterBottom
                             sx={{
-                                fontWeight: 'bold',
-                                color: '#fff',
+                                fontWeight: 700,
+                                color: 'primary.main',
                                 letterSpacing: 2,
                                 textShadow: '0 2px 8px #000',
-                                animation: 'fadeInDown 1s',
-                                '@keyframes fadeInDown': {
-                                    from: { opacity: 0, transform: 'translateY(-40px)' },
-                                    to: { opacity: 1, transform: 'translateY(0)' }
-                                }
+                                fontFamily: 'Montserrat, Arial, sans-serif',
+                                mb: 2,
+                                fontSize: { xs: '2rem', sm: '2.4rem' },
                             }}
                         >
-                            FindMatch
+                            Cupido App
                         </Typography>
 
                         <Typography
@@ -147,32 +160,33 @@ function Apresentacao() {
                             paragraph
                             sx={{
                                 mb: 3,
-                                lineHeight: 1.8,
-                                color: '#e0e0e0',
-                                animation: 'fadeIn 1.2s',
-                                '@keyframes fadeIn': {
-                                    from: { opacity: 0 },
-                                    to: { opacity: 1 }
-                                }
+                                lineHeight: 1.7,
+                                color: 'grey.200',
+                                fontSize: { xs: '1rem', sm: '1.1rem' },
+                                fontFamily: 'Montserrat, Arial, sans-serif',
+                                textAlign: 'justify',
                             }}
                         >
-                            FindMatch é um app de relacionamentos criado para quem valoriza conexões verdadeiras e deseja encontrar pessoas realmente compatíveis.
-                            Aqui, o que importa é quem você é de verdade, não apenas a sua aparência. Diferente de outros apps, onde as primeiras impressões vêm das fotos, no FindMatch você se apresenta pelo seu perfil, sua personalidade, seus valores e interesses. Assim, você é escolhido pelo que realmente importa.
+                            Cupido App é um app de relacionamentos criado para quem valoriza conexões verdadeiras e deseja encontrar pessoas realmente compatíveis.
+                            Aqui, o que importa é quem você é de verdade, não apenas a sua aparência. Diferente de outros apps, onde as primeiras impressões vêm das fotos, no Cupido App você se apresenta pelo seu perfil, sua personalidade, seus valores e interesses. Assim, você é escolhido pelo que realmente importa.
                         </Typography>
 
-                        {/* Botão de login com Google */}
                         <Button
                             onClick={handleGoogleSignIn}
                             variant="contained"
                             sx={{
                                 mb: 2,
-                                background: 'linear-gradient(90deg, #4285F4 0%, #34A853 100%)',
+                                background: 'linear-gradient(90deg, #6C63FF 0%, #4285F4 100%)',
                                 color: '#fff',
-                                fontWeight: 600,
+                                fontWeight: 700,
                                 textTransform: 'none',
+                                fontFamily: 'Montserrat, Arial, sans-serif',
+                                fontSize: { xs: '1rem', sm: '1.1rem' },
+                                borderRadius: 2,
                                 boxShadow: '0 2px 8px #0004',
+                                py: 1.2,
                                 '&:hover': {
-                                    background: 'linear-gradient(90deg, #357ae8 0%, #2e7d32 100%)',
+                                    background: 'linear-gradient(90deg, #5548c8 0%, #357ae8 100%)',
                                 },
                             }}
                             fullWidth
