@@ -55,7 +55,7 @@ function Apresentacao() {
     }, [session, url]);
 
     useEffect(() => {
-        if (!session || logado === null) return;
+        
         if (logado === true) {
             login();
         } else {
