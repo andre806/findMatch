@@ -44,7 +44,7 @@ export default function EncaminhaUser({ children }) {
     }, [email, url]);
 
     useEffect(() => {
-        if (verificado || logado) {
+        if ((verificado || logado) && window.location.pathname !== "/pages/perfil") {
             setRedirecting(true);
             router.push("/pages/perfil");
         }

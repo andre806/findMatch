@@ -1,13 +1,13 @@
 'use client'
 import Apresentação from "./components/CadastroComponents/Apresentação";
-import EncaminhaUser from "./services/encaminhaUser";
+import RequireAuth from "./services/VerificaLogado";
 
 export default function Home() {
   return(
     <div>
-      <EncaminhaUser>
+      <RequireAuth>
         <Apresentação />
-        </EncaminhaUser>
+      </RequireAuth>
     </div>
   );
 }

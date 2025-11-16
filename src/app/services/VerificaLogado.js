@@ -21,18 +21,22 @@ export default function RequireAuth({ children }) {
 
     useEffect(() => {
         if (logado === null) return; // ainda carregando
-        if (logado === true) {
+        // Só redireciona se não estiver na rota correta
+        if (logado === true && window.location.pathname !== "/pages/perfil") {
             router.replace("/pages/perfil");
-        } else if (logado === false) {
+        } else if (logado === false && window.location.pathname !== "/") {
             router.replace("/");
         }
     }, [logado, router]);
 
     if (logado === null) return null; // aguarda verificação
 
-    // Só renderiza children se já estiver na rota correta
-    if ((logado === true && window.location.pathname === "/pages/perfil") ||
-        (logado === false && window.location.pathname === "/")) {
+    // Renderiza children se estiver na / e não logado
+    if (window.location.pathname === "/" && logado === false) {
+        return children;
+    }
+    // Renderiza children se estiver na /pages/perfil e logado
+    if (window.location.pathname === "/pages/perfil" && logado === true) {
         return children;
     }
 

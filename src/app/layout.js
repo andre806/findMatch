@@ -1,5 +1,5 @@
 import Header from "./components/utils/Header";
-import RequireAuth from "./services/VerificaLogado";
+
 export const metadata = {
   title: 'GothicMatch - Encontros Góticos',
   description: 'Conecte-se com pessoas que compartilham do estilo gótico',
@@ -49,12 +49,11 @@ export default function RootLayout({ children }) {
             </nav>
               <Header />
           </header>
-          <RequireAuth>
              <main className="main-content">
             {children}
           </main>
         
-         </RequireAuth>
+         
          
 
 
@@ -62,7 +61,7 @@ export default function RootLayout({ children }) {
 
 
 
-            <p>&copy; 2025 GothicMatch. Conectando almas .</p>
+            <p>&copy; 2025 CupidoApp. Conectando almas .</p>
           </footer>
         </div>
       </body>
