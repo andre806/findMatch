@@ -1,9 +1,9 @@
 import Header from "./components/utils/Header";
 
 export const metadata = {
-  title: 'GothicMatch - Encontros Góticos',
+  title: 'CupidoApp - juntando almas',
   description: 'Conecte-se com pessoas que compartilham do estilo gótico',
-  keywords: 'gothic, match, dating, gótico, encontros',
+  keywords: ' match, dating, encontros',
   authors: [{ name: 'GothicMatch Team' }],
   viewport: 'width=device-width, initial-scale=1.0',
 };

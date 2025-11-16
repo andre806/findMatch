@@ -4,7 +4,7 @@ import MiniaturaPerfil from "@/app/components/Fy/Miniatura";
 import Payment from "../payment/page";
 import SkipBtn from "@/app/components/Fy/SkipBtn";
 import CurtirBtn from "@/app/components/Fy/CurtirBtn";
-
+import RequireAuth from "@/app/services/VerificaLogado";
 export default function SuperLike() {
     const url = process.env.NEXT_PUBLIC_URL;
     const [SuperLikes, setSuperLikes] = useState([]);
@@ -23,7 +23,7 @@ export default function SuperLike() {
 
     return (
         <div>
-            
+            <RequireAuth />
                {SuperLikes != false ?(
                <div>{SuperLikes.map((e) => (
                     <div key={e}>

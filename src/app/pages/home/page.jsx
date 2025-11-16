@@ -1,6 +1,7 @@
 'use client'
 import Box from "@mui/material/Box";
 import Fy from "@/app/components/Fy/Fy";
+import RequireAuth from "@/app/services/VerificaLogado";
 
 export default function HomePage() {
     return (
@@ -11,6 +12,7 @@ export default function HomePage() {
             alignItems: "flex-start", // topo
             justifyContent: "center"
         }}>
+            <RequireAuth />
             <Box sx={{
                 flex: "1 1 520px",
                 maxWidth: 520,

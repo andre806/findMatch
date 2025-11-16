@@ -4,6 +4,7 @@ import Payment from "../payment/page";
 import MiniaturaPerfil from "@/app/components/Fy/Miniatura";
 import SkipBtn from "@/app/components/Fy/SkipBtn";
 import CurtirBtn from "@/app/components/Fy/CurtirBtn";
+import RequireAuth from "@/app/services/VerificaLogado";
 export default function page() {
     const [ids, setIds] = useState([]);
     const [mounted, setMounted] = useState(false);
@@ -29,6 +30,7 @@ export default function page() {
 
     return (
         <div>
+            <RequireAuth />
             {ids != false ? (
                 <div>
                     {ids.map((e) => (

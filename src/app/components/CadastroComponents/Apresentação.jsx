@@ -1,4 +1,4 @@
-import { Container, Typography, Box, Paper, Button } from '@mui/material';
+import { Container, Typography, Box, Paper, Button, CircularProgress } from '@mui/material';
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from 'react';
 import { SessionProvider } from 'next-auth/react';
@@ -9,16 +9,30 @@ function getTokenFromCookies() {
 }
 
 function Apresentacao() {
-    const url = "https://demo-billowing-pine-7198.fly.dev";
+    const url = process.env.NEXT_PUBLIC_URL;
     const { data: session, status } = useSession();
     const [logado, setLogado] = useState(null);
     const [user, setUser] = useState({ nome: "", email: "" });
     const [passo1, setPasso1] = useState(null);
+    const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+        async function Verifica() {
+            setLoading(true);
+            const db = await fetch(`${url}User/VerificaLogado`, {
+                method: "GET",
+                credentials: "include"
+            });
+            const res = await db.json();
+            setLogado(res);
+            setLoading(false);
+        }
+        Verifica();
+    }, [url]);
     useEffect(() => {
         if (!session?.user?.email) return;
         async function fetchPasso1() {
-            const db = await fetch(`https://demo-billowing-pine-7198.fly.dev/User/verificaPasso1?email=${session.user.email}`);
+            const db = await fetch(`${url}User/verificaPasso1?email=${session.user.email}`);
             const res = await db.json();
             setPasso1(res);
         }
@@ -55,7 +69,7 @@ function Apresentacao() {
     }, [session, url]);
 
     useEffect(() => {
-        
+
         if (logado === true) {
             login();
         } else {
@@ -86,6 +100,23 @@ function Apresentacao() {
             signIn("google", { callbackUrl: "https://find-match-j1vq897dl-andres-projects-fd209be4.vercel.app/" });
         }
     };
+
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    width: '100vw',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: '#fff'
+                }}
+            >
+                <CircularProgress color="primary" size={60} />
+            </Box>
+        );
+    }
 
     return (
         <Box

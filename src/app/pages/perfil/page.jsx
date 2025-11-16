@@ -5,11 +5,12 @@ import Link from "next/link";
 
 export default function perfil() {
   return (
-    <RequireAuth>
+    
       <div>
+        <RequireAuth />
         <PPrivado />
         <Link href={"/pages/testes"}>Ir para Testes</Link>
       </div>
-    </RequireAuth>
+   
   )
 }
