@@ -91,7 +91,7 @@ function Apresentacao() {
 
     return (
         <>
-            {/* <RequireAuth> */}
+            <RequireAuth> 
             <Box
                 sx={{
                     minHeight: '100vh',
@@ -182,7 +182,7 @@ function Apresentacao() {
                     </Paper>
                 </Container>
             </Box>
-            {/* </RequireAuth> */}
+             </RequireAuth> 
         </>
     );
 }
