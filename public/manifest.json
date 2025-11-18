@@ -1,7 +1,7 @@
 {
-    "name": "find match",
-    "short_name": "find match",
-    "description": "Encontre seu par gótico!",
+    "name": "CupidoApp",
+    "short_name": "CupidoApp",
+    "description": "conectando almas através de gostos",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#000000",
