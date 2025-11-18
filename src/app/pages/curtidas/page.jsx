@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from "react"
-import Payment from "../payment/page";
+
 import MiniaturaPerfil from "@/app/components/Fy/Miniatura";
 import SkipBtn from "@/app/components/Fy/SkipBtn";
 import CurtirBtn from "@/app/components/Fy/CurtirBtn";
@@ -30,8 +30,6 @@ export default function page() {
 
     return (
         <div>
-            <RequireAuth />
-            {ids != false ? (
                 <div>
                     {ids.map((e) => (
                         <div key={e} style={{ marginBottom: 32, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -43,11 +41,7 @@ export default function page() {
                         </div>
                     ))}
                 </div>
-            ) : (
-                <div>
-                    <Payment></Payment>
-                </div>
-            )}
+            
         </div>
     )
 }
