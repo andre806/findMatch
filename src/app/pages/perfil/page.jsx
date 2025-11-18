@@ -7,7 +7,7 @@ export default function perfil() {
   return (
 
     <div>
-      <EncaminhaUser></EncaminhaUser>
+     
       <PPrivado />
     </div>
 
