@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getEmail } from "@/app/services/getEmail";
+
 import FotosByUser from "./FotosByUser";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -13,18 +13,12 @@ export default function PPrivado() {
     const [perfil, setPerfil] = useState(null);
     const url = process.env.NEXT_PUBLIC_URL;
 
-    useEffect(() => {
-        async function fetchEmail() {
-            const result = await getEmail();
-            setEmail(result);
-        }
-        fetchEmail();
-    }, []);
+   
 
     useEffect(() => {
         
         const fetchPerfil = async () => {
-            const db = await fetch(`${url}User/Perfil?email=${encodeURIComponent(email)}`, {
+            const db = await fetch(`${url}User/Perfil`, {
                 method: "GET",
                 headers: { "content-type": "application/json" },
                 credentials:"include"
