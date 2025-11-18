@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import FotosByUser from "./FotosByUser";
+import AdicionarFoto from "./AdicionsrFoto";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
@@ -110,6 +111,9 @@ export default function PPrivado() {
                             Galeria de Fotos
                         </Typography>
                         <FotosByUser />
+                        <Box sx={{ mt: 2 }}>
+                            <AdicionarFoto />
+                        </Box>
                     </Box>
                 </CardContent>
             </Card>
