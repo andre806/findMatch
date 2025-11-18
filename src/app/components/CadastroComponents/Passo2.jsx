@@ -14,19 +14,6 @@ const CIDADES_BRASIL = ["Todas", ...Object.values(cidadesJson)
 const GOSTOS_OPCOES = Object.values(gostosJson).flat();
 
 export default function Passo2({ onSubmit }) {
-    const [email, setEmail] = useState("");
-    useEffect(() => {
-        const fetchEmail = async () => {
-            const db = await fetch("/api/getEmail", {
-                method: "GET",
-                headers: { "content-type": "application/json" }
-            })
-            const res = await db.json();
-            console.log(res)
-            setEmail(res.email)
-        }
-        fetchEmail();
-    }, [])
     const url = process.env.NEXT_PUBLIC_URL
     const [user, setUser] = useState({
         gostos: [],
@@ -70,7 +57,8 @@ export default function Passo2({ onSubmit }) {
         if (e) e.preventDefault();
         const cidadesParaEnviar = user.cidadesExibicao.includes("Todas") ? ["todas"] : user.cidadesExibicao;
         const userToSend = { ...user, cidadesExibicao: cidadesParaEnviar };
-        await fetch(`${url}User/Passo2?email=${email}`, {
+        await fetch(`${url}User/Passo2`, {
+            credentials:"include",
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify(userToSend)

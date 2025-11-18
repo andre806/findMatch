@@ -4,7 +4,7 @@ import RequireAuth from "@/app/services/VerificaLogado";
 export default function Page() {
     return (
         <div>
-            <RequireAuth />
+     
             <Fy />
         </div>
     )

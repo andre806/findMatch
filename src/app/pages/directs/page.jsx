@@ -4,7 +4,7 @@ import RequireAuth from "@/app/services/VerificaLogado"
 export default function directs() {
     return(
         <div>
-           < RequireAuth />
+     
             <Directs />
         </div>
     )

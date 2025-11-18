@@ -1,5 +1,5 @@
 import Header from "./components/utils/Header";
-
+import SessionProviderWrapper from "./SessionProviderWrapper";
 export const metadata = {
   title: 'CupidoApp - juntando almas',
   description: 'Conecte-se com pessoas que compartilham do estilo gótico',
@@ -49,9 +49,11 @@ export default function RootLayout({ children }) {
             </nav>
               <Header />
           </header>
+          <SessionProviderWrapper>
              <main className="main-content">
             {children}
           </main>
+            </SessionProviderWrapper>
         
          
          

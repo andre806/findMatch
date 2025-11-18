@@ -1,12 +1,12 @@
 'use client'
 import Passo1 from "@/app/components/CadastroComponents/Passo1"
-import RequireAuth from "@/app/services/VerificaLogado"
+import EncaminhaUser from "@/app/services/encaminhaUser"
 
 export default function Passo() {
     return (
        
             <div>
-                <RequireAuth />
+                <EncaminhaUser />
                 <Passo1 />
             </div>
        

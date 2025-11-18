@@ -43,19 +43,6 @@ const AREAS = [
 ];
 
 export default function Passo1() {
-    const[email, setEmail] = useState("");
-    useEffect(() =>{
-        const fetchEmail = async () => {
-            const db  = await fetch("/api/getEmail",{
-                method:"GET",
-                headers:{"content-type":"application/json"}
-            })
-            const res = await db.json();
-            console.log(res)
-            setEmail(res.email)
-        }
-        fetchEmail();
-    },[])
     const url = process.env.NEXT_PUBLIC_URL
     const [user, setUser] = useState({
         idade: null,
@@ -99,7 +86,8 @@ export default function Passo1() {
             alert("Selecione uma cidade válida da lista.");
             return;
         }
-        const response = await fetch(`${url}User/Passo1?email=${email}`, {
+        const response = await fetch(`${url}User/Passo1`, {
+            credentials:"include",
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify(user)

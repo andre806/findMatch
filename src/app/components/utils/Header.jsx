@@ -46,7 +46,7 @@ export default function Header() {
                         gap: { sm: 2, md: 4 },
                         alignItems: "center"
                     }}>
-                        {["Início", "Matchs", "aumente seus matchs", "Explorar"].map((menu, idx) => (
+                        {["Início", "Matchs", "Explorar"].map((menu, idx) => (
                             <Button
                                 key={menu}
                                 sx={{
@@ -60,9 +60,7 @@ export default function Header() {
                                                 ? "3px solid #9933ff"
                                                 : (menu === "Explorar" && pathname === "/pages/explorar")
                                                     ? "3px solid #9933ff"
-                                                    : (menu === "aumente seus matchs" && pathname === "/pages/payment")
-                                                        ? "3px solid #9933ff"
-                                                        : "none",
+                                                    : "none",
                                     borderRadius: 0,
                                     px: 2,
                                     transition: "color 0.3s"
@@ -71,7 +69,6 @@ export default function Header() {
                                     if (menu === "Matchs") router.push("/pages/directs");
                                     if (menu === "Início") router.push("/pages/home");
                                     if (menu === "Explorar") router.push("/pages/explorar");
-                                    if (menu === "aumente seus matchs") router.push("/pages/payment");
                                 }}
                             >
                                 {menu}
@@ -108,7 +105,7 @@ export default function Header() {
             {/* Drawer lateral para mobile */}
             <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
                 <Box sx={{ width: 220, p: 2 }}>
-                    {["Início", "Matchs", "aumente seus matchs", "Explorar"].map((menu, idx) => (
+                    {["Início", "Matchs", "Explorar"].map((menu, idx) => (
                         <Button
                             key={menu}
                             fullWidth
@@ -124,9 +121,7 @@ export default function Header() {
                                             ? "3px solid #9933ff"
                                             : (menu === "Explorar" && pathname === "/pages/explorar")
                                                 ? "3px solid #9933ff"
-                                                : (menu === "aumente seus matchs" && pathname === "/pages/payment")
-                                                    ? "3px solid #9933ff"
-                                                    : "none",
+                                                : "none",
                                 borderRadius: 0,
                                 px: 2,
                                 transition: "color 0.3s"
@@ -135,7 +130,6 @@ export default function Header() {
                                 if (menu === "Matchs") router.push("/pages/directs");
                                 if (menu === "Início") router.push("/pages/home");
                                 if (menu === "Explorar") router.push("/pages/explorar");
-                                if (menu === "aumente seus matchs") router.push("/pages/payment");
                             }}
                         >
                             {menu}

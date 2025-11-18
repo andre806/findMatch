@@ -20,7 +20,7 @@ export default function Explorar() {
                 px: { xs: 1, sm: 0 }
             }}
         >
-            <RequireAuth />
+        
             <Typography
                 variant="h4"
                 sx={{

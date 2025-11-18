@@ -1,7 +1,10 @@
-import { Container, Typography, Box, Paper, Button, CircularProgress } from '@mui/material';
+import { Container, Typography, Box, Paper, Button } from '@mui/material';
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from 'react';
 import { SessionProvider } from 'next-auth/react';
+import RequireAuth from '@/app/services/VerificaLogado';
+import { useRouter } from "next/navigation";
+
 function getTokenFromCookies() {
     if (typeof document === "undefined") return null;
     const match = document.cookie.match(/(?:^|; )token=([^;]*)/);
@@ -10,232 +13,180 @@ function getTokenFromCookies() {
 
 function Apresentacao() {
     const url = process.env.NEXT_PUBLIC_URL;
+    const NextUrl = process.env.NEXTAUTH_URL;
     const { data: session, status } = useSession();
-    const [logado, setLogado] = useState(null);
+    console.log("Session:", session, "Status:", status);
     const [user, setUser] = useState({ nome: "", email: "" });
-    const [passo1, setPasso1] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function Verifica() {
-            setLoading(true);
-            const db = await fetch(`${url}User/VerificaLogado`, {
-                method: "GET",
-                credentials: "include"
-            });
-            const res = await db.json();
-            setLogado(res);
-            setLoading(false);
-        }
-        Verifica();
-    }, [url]);
-    useEffect(() => {
-        if (!session?.user?.email) return;
-        async function fetchPasso1() {
-            const db = await fetch(`${url}User/verificaPasso1?email=${session.user.email}`);
-            const res = await db.json();
-            setPasso1(res);
-        }
-        fetchPasso1();
-    }, [session, url]);
-
-    useEffect(() => {
-        if (status === "authenticated" && passo1 !== null) {
-            if (passo1 === false) {
-                window.location.href = "/pages/Passo1";
-            } else {
-                window.location.href = "/pages/perfil";
-            }
-        }
-    }, [status, passo1]);
-
+    const [loginRealizado, setLoginRealizado] = useState(false);
+    const [hasRun, setHasRun] = useState(false);
+    const router = useRouter();
+   
+    // Atualiza user quando session muda
     useEffect(() => {
         if (!session) return;
-        setUser(prev => ({
-            ...prev,
-            email: session.user?.email || "",
-            nome: session.user?.name || ""
-        }));
+        setUser({
+            nome: session.user?.name || "",
+            email: session.user?.email || ""
+        });
+       console.log(" user set")
     }, [session]);
 
-    useEffect(() => {
-        if (!session) return;
-        async function fetchLogado() {
-            const db = await fetch(`${url}User/VerificaLogadoEmail?email=${session.user.email}`);
-            const res = await db.json();
-            setLogado(res);
-        }
-        fetchLogado();
-    }, [session, url]);
 
+    // Redireciona após login
     useEffect(() => {
-
-        if (logado === true) {
-            login();
-        } else {
-            cadastrar();
+        if (loginRealizado) {
+            router.push("/pages/perfil");
         }
-        // eslint-disable-next-line
-    }, [logado, session]);
+    }, [loginRealizado, router]);
 
     const cadastrar = async () => {
-        await fetch(`${url}User/createUser`, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(user)
-        });
+        try {
+            const res = await fetch(`${url}User/createUser`, {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify(user)
+            });
+            if (res.ok) await login();
+        } catch (e) { }
     };
+
     const login = async () => {
-        await fetch(`${url}User/login?email=${user.email}`, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            credentials: "include"
-        });
+        try {
+            const res = await fetch(`${url}User/login?email=${user.email}`, {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                credentials:"include"
+            });
+            if (res.ok) setLoginRealizado(true);
+            console.log("executa login")
+        } catch (e) { }
     };
-    const [loginRealizado, setLoginRealizado] = useState(false);
 
     const handleGoogleSignIn = () => {
-        const token = getTokenFromCookies();
-        if (!token) {
-            signIn("google", { callbackUrl: "https://find-match-mu.vercel.app/" });
-        }
+        // const token = getTokenFromCookies();
+      
+            signIn("google", { callbackUrl: `/` });
+        
     };
-
-    if (loading) {
-        return (
-            <Box
-                sx={{
-                    minHeight: '100vh',
-                    width: '100vw',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: '#fff'
-                }}
-            >
-                <CircularProgress color="primary" size={60} />
-            </Box>
-        );
+   
+    useEffect(() => {
+    if (!user.email) return; // Só executa se o email existir
+    async function checkAndAuth() {
+        try {
+            const db = await fetch(`${url}User/VerificaLogadoEmail?email=${user.email}`);
+            const res = await db.json();
+            if (res === true) {
+                await login();
+            } else {
+                await cadastrar();
+            }
+        } catch (e) { }
     }
+    checkAndAuth();
+}, [user.email]);
 
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                width: '100vw',
-                background: '#fff', // fundo branco
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                px: { xs: 1, sm: 2 },
-            }}
-        >
-            <Container
-                maxWidth="sm"
-                sx={{
-                    py: { xs: 2, sm: 4 },
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'relative',
-                    zIndex: 1,
-                }}
-            >
-                <Paper
-                    elevation={4}
+        <>
+            {/* <RequireAuth> */}
+                <Box
                     sx={{
-                        p: { xs: 2, sm: 4 },
-                        borderRadius: 3,
-                        background: 'linear-gradient(135deg, rgba(30,30,40,0.95) 60%, rgba(60,40,80,0.90) 100%)',
-                        color: '#fafafa',
-                        boxShadow: '0 8px 32px 0 rgba(31,38,135,0.37)',
-                        backdropFilter: 'blur(2px)',
-                        width: '100%',
-                        maxWidth: 420,
-                        mx: 'auto',
+                        minHeight: '100vh',
+                        width: '100vw',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }}
                 >
-                    <Box textAlign="center">
-                        <img
-                            src="/logo.png"
-                            alt="Logo Cupido App"
-                            style={{
-                                width: 110,
-                                marginBottom: 18,
-                                filter: 'drop-shadow(0 2px 8px #0008)',
-                                borderRadius: 16,
-                                background: 'rgba(40,40,60,0.5)',
-                                padding: 8,
-                            }}
-                        />
-                        <Typography
-                            variant="h4"
-                            component="h1"
-                            gutterBottom
+                    <Container maxWidth="md" sx={{ py: 4 }}>
+                        <Paper
+                            elevation={3}
                             sx={{
-                                fontWeight: 700,
-                                color: 'primary.main',
-                                letterSpacing: 2,
-                                textShadow: '0 2px 8px #000',
-                                fontFamily: 'Montserrat, Arial, sans-serif',
-                                mb: 2,
-                                fontSize: { xs: '2rem', sm: '2.4rem' },
-                            }}
-                        >
-                            Cupido App
-                        </Typography>
-
-                        <Typography
-                            variant="body1"
-                            paragraph
-                            sx={{
-                                mb: 3,
-                                lineHeight: 1.7,
-                                color: 'grey.200',
-                                fontSize: { xs: '1rem', sm: '1.1rem' },
-                                fontFamily: 'Montserrat, Arial, sans-serif',
-                                textAlign: 'justify',
-                            }}
-                        >
-                            Cupido App é um app de relacionamentos criado para quem valoriza conexões verdadeiras e deseja encontrar pessoas realmente compatíveis.
-                            Aqui, o que importa é quem você é de verdade, não apenas a sua aparência. Diferente de outros apps, onde as primeiras impressões vêm das fotos, no Cupido App você se apresenta pelo seu perfil, sua personalidade, seus valores e interesses. Assim, você é escolhido pelo que realmente importa.
-                        </Typography>
-
-                        <Button
-                            onClick={handleGoogleSignIn}
-                            variant="contained"
-                            sx={{
-                                mb: 2,
-                                background: 'linear-gradient(90deg, #6C63FF 0%, #4285F4 100%)',
-                                color: '#fff',
-                                fontWeight: 700,
-                                textTransform: 'none',
-                                fontFamily: 'Montserrat, Arial, sans-serif',
-                                fontSize: { xs: '1rem', sm: '1.1rem' },
+                                p: 4,
                                 borderRadius: 2,
-                                boxShadow: '0 2px 8px #0004',
-                                py: 1.2,
-                                '&:hover': {
-                                    background: 'linear-gradient(90deg, #5548c8 0%, #357ae8 100%)',
-                                },
+                                backgroundColor: 'rgba(20, 20, 30, 0.85)',
+                                color: '#fafafa',
+                                boxShadow: '0 8px 32px 0 rgba(31,38,135,0.37)',
+                                backdropFilter: 'none',
                             }}
-                            fullWidth
                         >
-                            Entrar com Google
-                        </Button>
-                    </Box>
-                </Paper>
-            </Container>
-        </Box>
-
-    )
+                            <Box textAlign="center">
+                                <img
+                                    src="/logo.png"
+                                    alt="Logo CupidoApp"
+                                    style={{
+                                        width: 140,
+                                        marginBottom: 24,
+                                        filter: 'drop-shadow(0 2px 8px #0008)'
+                                    }}
+                                />
+                                <Typography
+                                    variant="h4"
+                                    component="h1"
+                                    gutterBottom
+                                    sx={{
+                                        fontWeight: 'bold',
+                                        color: '#fff',
+                                        letterSpacing: 2,
+                                        textShadow: '0 2px 8px #000',
+                                        animation: 'fadeInDown 1s',
+                                        '@keyframes fadeInDown': {
+                                            from: { opacity: 0, transform: 'translateY(-40px)' },
+                                            to: { opacity: 1, transform: 'translateY(0)' }
+                                        }
+                                    }}
+                                >
+                                    CupidoApp
+                                </Typography>
+                                <Typography
+                                    variant="body1"
+                                    paragraph
+                                    sx={{
+                                        mb: 3,
+                                        lineHeight: 1.8,
+                                        color: '#e0e0e0',
+                                        animation: 'fadeIn 1.2s',
+                                        '@keyframes fadeIn': {
+                                            from: { opacity: 0 },
+                                            to: { opacity: 1 }
+                                        }
+                                    }}
+                                >
+                                    CupidoApp é um app de relacionamentos criado para quem valoriza conexões verdadeiras e deseja encontrar pessoas realmente compatíveis.
+                                    Aqui, o que importa é quem você é de verdade, não apenas a sua aparência. Diferente de outros apps, onde as primeiras impressões vêm das fotos, no CupidoApp você se apresenta pelo seu perfil, sua personalidade, seus valores e interesses. Assim, você é escolhido pelo que realmente importa.
+                                </Typography>
+                                <Button
+                                    onClick={handleGoogleSignIn}
+                                    variant="contained"
+                                    sx={{
+                                        mb: 2,
+                                        background: 'linear-gradient(90deg, #4285F4 0%, #34A853 100%)',
+                                        color: '#fff',
+                                        fontWeight: 600,
+                                        textTransform: 'none',
+                                        boxShadow: '0 2px 8px #0004',
+                                        '&:hover': {
+                                            background: 'linear-gradient(90deg, #357ae8 0%, #2e7d32 100%)',
+                                        },
+                                    }}
+                                    fullWidth
+                                >
+                                    Entrar com Google
+                                </Button>
+                            </Box>
+                        </Paper>
+                    </Container>
+                </Box>
+            {/* </RequireAuth> */}
+        </>
+    );
 }
 
 export default function Apresentação() {
     return (
-        < SessionProvider>
+        <SessionProvider>
             <Apresentacao />
         </SessionProvider>
-    )
+    );
 }
