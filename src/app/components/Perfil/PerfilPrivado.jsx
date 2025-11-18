@@ -9,25 +9,25 @@ import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 
 export default function PPrivado() {
- 
+
     const [perfil, setPerfil] = useState(null);
     const url = process.env.NEXT_PUBLIC_URL;
 
-   
+
 
     useEffect(() => {
-        
+
         const fetchPerfil = async () => {
             const db = await fetch(`${url}User/Perfil`, {
                 method: "GET",
                 headers: { "content-type": "application/json" },
-                credentials:"include"
+                credentials: "include"
             });
             const res = await db.json();
             setPerfil(res);
         };
         fetchPerfil();
-    }, [email, url]);
+    }, [url]);
 
     const interests = perfil?.interesses && Array.isArray(perfil.interesses)
         ? perfil.interesses
