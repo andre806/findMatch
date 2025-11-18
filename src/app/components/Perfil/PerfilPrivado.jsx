@@ -9,7 +9,7 @@ import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 
 export default function PPrivado() {
-    const [email, setEmail] = useState(null);
+ 
     const [perfil, setPerfil] = useState(null);
     const url = process.env.NEXT_PUBLIC_URL;
 
@@ -22,11 +22,12 @@ export default function PPrivado() {
     }, []);
 
     useEffect(() => {
-        if (!email) return;
+        
         const fetchPerfil = async () => {
             const db = await fetch(`${url}User/Perfil?email=${encodeURIComponent(email)}`, {
                 method: "GET",
-                headers: { "content-type": "application/json" }
+                headers: { "content-type": "application/json" },
+                credentials:"include"
             });
             const res = await db.json();
             setPerfil(res);
