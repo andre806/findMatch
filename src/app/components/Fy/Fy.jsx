@@ -103,6 +103,14 @@ export default function Fy() {
         setAnimDirection(direction);
         setTimeout(async () => {
             setPreviousProfile(usersId[currentIdx]);
+            // Marcar o perfil atual como null se foi curtido ou superlike
+            if (doLike || doSuperLike) {
+                setUsersIds(prev => {
+                    const updated = [...prev];
+                    updated[currentIdx] = null;
+                    return updated;
+                });
+            }
             const nextIdx = getNextValidIdx(currentIdx);
             if (nextIdx === -1) {
                 await BuscarMais();
