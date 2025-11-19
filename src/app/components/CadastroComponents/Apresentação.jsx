@@ -29,7 +29,7 @@ function Apresentacao() {
                     });
                     if (loginRes.ok) {
                         setUserChecked(true);
-                        router.push("/Passo1");
+                        router.push("/pages/Passo1");
                     }
                 } else {
                     // Cadastro no backend
@@ -50,7 +50,7 @@ function Apresentacao() {
                         });
                         if (loginRes.ok) {
                             setUserChecked(true);
-                            router.push("/Passo1");
+                            router.push("/pages/Passo1");
                         }
                     }
                 }
