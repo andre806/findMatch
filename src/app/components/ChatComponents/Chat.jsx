@@ -6,8 +6,8 @@ import { Client } from "@stomp/stompjs";
 export default function Chat() {
     const params = useParams();
     // Use useMemo para garantir que os IDs não mudem a cada render
-    const user1Id = useMemo(() => decodeURIComponent(params.user1Id), [decodeURIComponent(params.user1Id)]);
-    const user2Id = useMemo(() => decodeURIComponent(params.user2Id), [decodeURIComponent(params.user2Id)]);
+    const user1Id = useMemo(() => encodeURIComponent(params.user1Id), [encodeURIComponent(params.user1Id)]);
+    const user2Id = useMemo(() => encodeURIComponent(params.user2Id), [encodeURIComponent(params.user2Id)]);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [isConnected, setIsConnected] = useState(false);

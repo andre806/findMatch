@@ -77,7 +77,7 @@ export default function Directs() {
                                 "&:hover": { boxShadow: 6, borderColor: "#9933ff" }
                             }}
                         >
-                            <Link href={`/pages/Chat/${d.pessoa1Id}/${d.pessoa2Id}`} style={{ textDecoration: "none" }}>
+                            <Link href={`/Chat/${encodeURIComponent(d.pessoa1Id)}/${encodeURIComponent(d.pessoa2Id)}`} style={{ textDecoration: "none" }}>
                                 <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                                     <Avatar
                                         src={data?.foto}

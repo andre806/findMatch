@@ -12,6 +12,7 @@ import IniciarChatBtn from "./IniciarChatBtn";
 
 export default function Fy() {
     const [usersId, setUsersIds] = useState([]);
+    const [shownIds, setShownIds] = useState([]);
     const [noMoreProfiles, setNoMoreProfiles] = useState(false);
     const [currentIdx, setCurrentIdx] = useState(0);
     const [animDirection, setAnimDirection] = useState("");
@@ -19,17 +20,29 @@ export default function Fy() {
     const [previousProfile, setPreviousProfile] = useState(null);
 
     async function BuscarMais() {
-        const db = await fetch(`${url}feed/Fy`, {
-            method: "GET",
-            credentials: "include"
-        });
-        const res = await db.json();
-        setUsersIds(res);
-        setCurrentIdx(0);
-        if (!res || res.filter(p => p != null).length === 0) {
+        try {
+            const db = await fetch(`${url}feed/Fy`, {
+                method: "GET",
+                credentials: "include"
+            });
+            let res = await db.json().catch(() => null);
+            // Filtra perfis já mostrados
+            if (Array.isArray(res)) {
+                res = res.filter(id => !shownIds.includes(id));
+            }
+            if (!res || !Array.isArray(res) || res.filter(p => p != null).length === 0) {
+                setNoMoreProfiles(true);
+                setUsersIds([]);
+                setCurrentIdx(0);
+            } else {
+                setUsersIds(res);
+                setCurrentIdx(0);
+                setNoMoreProfiles(false);
+            }
+        } catch (e) {
             setNoMoreProfiles(true);
-        } else {
-            setNoMoreProfiles(false);
+            setUsersIds([]);
+            setCurrentIdx(0);
         }
     }
 
@@ -39,7 +52,11 @@ export default function Fy() {
                 method: "GET",
                 credentials: "include"
             });
-            const res = await db.json();
+            let res = await db.json();
+            // Filtra perfis já mostrados
+            if (Array.isArray(res)) {
+                res = res.filter(id => !shownIds.includes(id));
+            }
             setUsersIds(res);
             setCurrentIdx(0);
             if (!res || res.filter(p => p != null).length === 0) {
@@ -49,7 +66,7 @@ export default function Fy() {
             }
         }
         FetchIds();
-    }, [url]);
+    }, [url, shownIds]);
 
     useEffect(() => {
         if (usersId.some(p => p == null) && !noMoreProfiles) {
@@ -101,24 +118,24 @@ export default function Fy() {
 
     function handleNext(direction = "", doLike = false, doSuperLike = false) {
         setAnimDirection(direction);
-        setTimeout(async () => {
+        setTimeout(() => {
             setPreviousProfile(usersId[currentIdx]);
-            // Marcar o perfil atual como null se foi curtido ou superlike
-            if (doLike || doSuperLike) {
-                setUsersIds(prev => {
-                    const updated = [...prev];
-                    updated[currentIdx] = null;
-                    return updated;
-                });
-            }
-            const nextIdx = getNextValidIdx(currentIdx);
-            if (nextIdx === -1) {
-                await BuscarMais();
+            // Adiciona o perfil atual à lista de já mostrados
+            setShownIds(prev => {
+                const id = usersId[currentIdx];
+                if (id && !prev.includes(id)) {
+                    return [...prev, id];
+                }
+                return prev;
+            });
+            const nextIdx = currentIdx + 1;
+            if (nextIdx >= usersId.length) {
+                BuscarMais();
             } else {
                 setCurrentIdx(nextIdx);
             }
             setAnimDirection("");
-        }, 400);
+        }, 500);
     }
 
     function handleRewind() {
@@ -220,16 +237,10 @@ export default function Fy() {
                                 <SkipBtn onSkip={() => handleNext("left", false)} />
                             </Box>
                             <Box sx={{ '& > *': { fontSize: 48, width: 72, height: 72 } }}>
-                                <SuperLikeBtn perfilId={currentUser} onSuperLike={() => handleNext("up", false, true)} />
-                            </Box>
-                            <Box sx={{ '& > *': { fontSize: 48, width: 72, height: 72 } }}>
                                 <CurtirBtn userId={currentUser} onLike={() => handleNext("right", true)} />
                             </Box>
                             <Box sx={{ '& > *': { fontSize: 48, width: 72, height: 72 } }}>
                                 <RewindBtn onRewind={handleRewind} />
-                            </Box>
-                            <Box sx={{ '& > *': { fontSize: 48, width: 72, height: 72 } }}>
-                                <IniciarChatBtn pessoa2={currentUser} />
                             </Box>
                         </Box>
                     </Box>

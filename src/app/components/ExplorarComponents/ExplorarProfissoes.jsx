@@ -318,10 +318,8 @@ export default function ExplorarProfissoes() {
                                         }}
                                     >
                                         <SkipBtn onSkip={() => handleNext("left", false)} />
-                                        <SuperLikeBtn perfilId={currentUser} onSuperLike={() => handleNext("up", false, true)} />
                                         <CurtirBtn userId={currentUser} onLike={() => handleNext("right", true)} />
                                         <RewindBtn onRewind={handleRewind} />
-                                        <IniciarChatBtn pessoa2={currentUser} />
                                     </Box>
                                 </motion.div>
                             )}

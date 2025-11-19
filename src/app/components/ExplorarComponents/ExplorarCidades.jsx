@@ -254,7 +254,7 @@ export default function ExplorarCidades() {
                         }}
                     >
                         {/* Miniatura mais acima e à esquerda */}
-                        <Box sx={{ display: "flex", justifyContent: "flex-start", mt: -4, mb: 2, width: "100%" , transform:"scale(0.9)"}}>
+                        <Box sx={{ display: "flex", justifyContent: "flex-start", mt: -4, mb: 2, width: "100%", transform: "scale(0.9)" }}>
                             <MiniaturaPerfil id={currentUser} sx={{ transform: "scale(0.5)", transformOrigin: "top center" }} />
                         </Box>
                         {/* Botões abaixo da miniatura, alinhados à esquerda */}
@@ -262,17 +262,15 @@ export default function ExplorarCidades() {
                             sx={{
                                 display: "center",
                                 gap: 6,
-                                right:160,
+                                right: 160,
                                 mt: -8,
                                 width: "100%",
                                 left: 120
                             }}
                         >
                             <SkipBtn onSkip={() => handleNext("left", false)} />
-                            <SuperLikeBtn perfilId={currentUser} onSuperLike={() => handleNext("up", false, true)} />
                             <CurtirBtn userId={currentUser} onLike={() => handleNext("right", true)} />
                             <RewindBtn onRewind={handleRewind} />
-                            <IniciarChatBtn pessoa2={currentUser} />
                         </Box>
                     </div>
                 ) : noMoreProfiles && cidade ? (
