@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+https://landing-page-cupido-app.vercel.app/
+# CupidoApp
 
-## Getting Started
+CupidoApp é um aplicativo de relacionamentos criado para pessoas que valorizam conexões verdadeiras e desejam encontrar pessoas realmente compatíveis. Ao contrário de outros aplicativos de encontros onde a primeira impressão depende de fotos, no CupidoApp o destaque é para o perfil, personalidade, valores e interesses dos usuários, promovendo encontros baseados no que realmente importa.
 
-First, run the development server:
+## Propósito
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Conectar pessoas que buscam relações autênticas, focando em compatibilidade de valores, gostos musicais, interesses, estilo de vida e objetivos semelhantes.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Principais Funcionalidades
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- **Apresentação detalhada do perfil**: Usuários se apresentam através de suas histórias, gostos musicais, valores, interesses e objetivos, tornando o processo de escolha mais genuíno.
+- **Sistema de curtidas, super likes e matches**: Interação entre perfis baseada em afinidade e interesse mútuo.
+- **Exploração por gostos e interesses**: Possibilidade de buscar conexões filtradas por gostos musicais, preferências e estilos de vida.
+- **Interface moderna**: Desenvolvido com Next.js e Material UI, proporcionando uma experiência fluida e responsiva.
+- **Autenticação com Google**: Login prático e seguro utilizando a plataforma Google.
+- **Controle de curtidas/matches**: Visualização dos perfis curtidos e gerenciamento das conexões realizadas.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Diferenciais
 
-## Learn More
+- Valorização do conteúdo do perfil em detrimento da aparência.
+- Foco em nichos e estilos (exemplo: estilo gótico, conforme metadados do projeto).
+- Algoritmos simples de recomendação por afinidade e preferências.
+- Apresentação dos perfis com informações como escolaridade, sexualidade, gostos musicais e bio.
 
-To learn more about Next.js, take a look at the following resources:
+## Tecnologias Utilizadas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Next.js** (React)
+- **Material UI** para componentes visuais
+- **Framer Motion** para animações
+- **Autenticação Google**
+- **API integrada para manipulação de curtidas e matches**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Como executar localmente
 
-## Deploy on Vercel
+1. Instale as dependências:
+    ```sh
+    npm install
+    ```
+2. Inicie o projeto:
+    ```sh
+    npm run dev
+    ```
+3. Acesse via navegador: `http://localhost:3000`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Autores
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Equipe GothicMatch
+
+
+
+---
+
+&copy; 2025 CupidoApp. Conectando almas.
